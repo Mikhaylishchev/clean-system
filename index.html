@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Химчистка мебели | Заявка</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        label { display: block; margin: 12px 0 5px; font-size: 14px; color: #666; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        button { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; }
+        #status { text-align: center; margin-top: 15px; font-weight: 600; min-height: 24px; }
+        .consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 12px; color: #888; }
+        .consent input { width: auto; margin-top: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Заявка на химчистку мебели</h2>
+    <form id="order-form">
+        <label>Ваше имя</label>
+        <input type="text" name="name" placeholder="Имя" required>
+
+        <label>Телефон</label>
+        <input type="tel" name="phone" id="phone" placeholder="8 (9XX) XXX-XX-XX" required>
+
+        <label>Адрес</label>
+        <input type="text" name="address" placeholder="ул. Пушкина, д. 10" required>
+
+        <label>Что чистим?</label>
+        <select name="service" required>
+            <option value="">Выберите услугу...</option>
+            <option value="Диван">Диван</option>
+            <option value="Матрас">Матрас</option>
+            <option value="Кресло">Кресло</option>
+            <option value="Ковер">Ковер</option>
+        </select>
+
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Дата</label>
+                <input type="date" name="date" id="order-date" required>
+            </div>
+            <div style="flex: 1;">
+                <label>Время</label>
+                <input type="time" name="time" step="3600" required>
+            </div>
+        </div>
+
+        <label>Фото мебели (для оценки стоимости работ)</label>
+        <input type="file" id="image" accept="image/*">
+
+        <label>Комментарий</label>
+        <textarea name="message" rows="2" placeholder="Укажите тип загрязнения, материал обивки или задайте вопрос"></textarea>
+
+        <div class="consent">
+            <input type="checkbox" id="check" checked required>
+            <label for="check">Согласен на обработку данных</label>
+        </div>
+
+        <button type="submit" id="submit-btn">Записаться</button>
+    </form>
+    <div id="status"></div>
+</div>
+
+<script>
+    const form = document.getElementById('order-form');
+    const status = document.getElementById('status');
+    const btn = document.getElementById('submit-btn');
+    const phoneInput = document.getElementById('phone');
+
+    // --- НАСТРОЙКИ ---
+    const scriptURL = 'ТВОЙ_APPS_SCRIPT_URL';
+    const botToken = 'ТВОЙ_ТОКЕН_БОТА';
+    const chatId = 'ТВОЙ_ID_ЧАТА';
+
+    // Ограничение даты (от сегодня)
+    document.getElementById('order-date').min = new Date().toISOString().split("T")[0];
+
+    // Маска телефона (исправленная)
+    const prefix = '8 (9';
+    phoneInput.addEventListener('input', () => {
+        let val = phoneInput.value.replace(/\D/g, '');
+        if (phoneInput.value.length < prefix.length) { phoneInput.value = prefix; return; }
+        let extra = val.substring(2); 
+        let formatted = prefix;
+        if (extra.length > 0) formatted += extra.substring(0, 2);
+        if (extra.length > 2) formatted += ') ' + extra.substring(2, 5);
+        if (extra.length > 5) formatted += '-' + extra.substring(5, 7);
+        if (extra.length > 7) formatted += '-' + extra.substring(7, 9);
+        phoneInput.value = formatted.substring(0, 17);
+    });
+
+    phoneInput.addEventListener('focus', () => { if(!phoneInput.value) phoneInput.value = prefix; });
+
+    // Отправка
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (phoneInput.value.replace(/\D/g, '').length !== 11) {
+        alert("Введите полный номер!");
+        return;
+    }
+
+    btn.disabled = true;
+    status.style.color = "blue";
+    status.textContent = "⏳ Отправка заявки и фото...";
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const fileInput = document.getElementById('image');
+    const file = fileInput.files[0];
+
+    // Функция для реальной отправки
+    const sendRequest = async (payload) => {
+        await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: new URLSearchParams(payload)
+        });
+        status.style.color = "green";
+        status.textContent = "✅ Заказ и фото успешно отправлены!";
+        form.reset();
+        phoneInput.value = "";
+        btn.disabled = false;
+    };
+
+    if (file) {
+        // Читаем файл как Base64
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+            data.fileData = event.target.result.split(',')[1];
+            data.fileName = file.name;
+            await sendRequest(data);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        await sendRequest(data);
+    }
+});
+  
+</script>
+
+</body>
+</html>
