@@ -50,11 +50,11 @@
             <div style="flex: 1;">
                 <label>Время</label>
                 <div style="display: flex; gap: 5px; align-items: center;">
-                    <select id="hours" name="hour" required style="padding: 10px;">
+                    <select id="hours" name="hour" required style="padding: 10px; flex: 1;">
                         <option value="">Час</option>
                     </select>
                     <span>:</span>
-                    <select id="minutes" name="minute" required style="padding: 10px;">
+                    <select id="minutes" name="minute" required style="padding: 10px; flex: 1;">
                         <option value="">Мин</option>
                         <option value="00">00</option>
                         <option value="10">10</option>
@@ -67,11 +67,11 @@
             </div>
         </div>
 
-        <label>Фото мебели (для оценки стоимости работ)</label>
-        <input type="file" id="image" accept="image/*">
+        <label>Фото мебели для оценки (до 3-х)</label>
+        <input type="file" id="image" accept="image/*" multiple>
 
         <label>Комментарий</label>
-        <textarea name="message" rows="2" placeholder="Укажите тип загрязнения, материал обивки или задайте вопрос"></textarea>
+        <textarea name="message" rows="2" placeholder="Укажите тип загрязнения или вопрос"></textarea>
 
         <div class="consent">
             <input type="checkbox" id="check" checked required>
@@ -88,16 +88,24 @@
     const status = document.getElementById('status');
     const btn = document.getElementById('submit-btn');
     const phoneInput = document.getElementById('phone');
+    const hourSelect = document.getElementById('hours');
 
     // --- НАСТРОЙКИ ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwI0imF4_geimLouAkwlDRzERo3hzlIY305RTLCfI5AzDoCtnX36MT_JTdJYBy0Yhtypw/exec';
-    const botToken = '8683477714:AAE7-foYVqTnVDaQiosysZZaFXGO0rXzeUM';
-    const chatId = '336555774';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwZxMBqHejz_aL413k2W1qvF_oyX6sIZFT5CtGcns_iKWrdIM7mtB9_s4P4WSON9CjHjw/exec';
 
-    // Ограничение даты (от сегодня)
+    // 1. Заполняем часы (с 8 до 20)
+    for (let i = 8; i <= 20; i++) {
+        let opt = document.createElement('option');
+        let val = i < 10 ? '0' + i : i;
+        opt.value = val;
+        opt.textContent = val;
+        hourSelect.appendChild(opt);
+    }
+
+    // 2. Ограничение даты (минимум сегодня)
     document.getElementById('order-date').min = new Date().toISOString().split("T")[0];
 
-    // Маска телефона (исправленная)
+    // 3. Маска телефона
     const prefix = '8 (9';
     phoneInput.addEventListener('input', () => {
         let val = phoneInput.value.replace(/\D/g, '');
@@ -110,70 +118,96 @@
         if (extra.length > 7) formatted += '-' + extra.substring(7, 9);
         phoneInput.value = formatted.substring(0, 17);
     });
-
     phoneInput.addEventListener('focus', () => { if(!phoneInput.value) phoneInput.value = prefix; });
 
-    // Отправка
-    form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    if (phoneInput.value.replace(/\D/g, '').length !== 11) {
-        alert("Введите полный номер!");
-        return;
-    }
+    // 4. Функция сжатия фото (до 3-х штук)
+    const getFilesData = async (files) => {
+        // Берем только первые 3, если вдруг кто-то выбрал больше
+        const selectedFiles = Array.from(files).slice(0, 3);
+        const promises = selectedFiles.map(file => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_SIZE = 1200; // Немного увеличим качество для альбома
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        resolve({ data: dataUrl.split(',')[1], name: file.name });
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        return Promise.all(promises);
+    };
 
-    btn.disabled = true;
-    status.style.color = "blue";
-    status.textContent = "⏳ Отправка заявки и фото...";
-
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    // Склеиваем часы и минуты в одну строку для таблицы и ТГ
-    if (data.hour && data.minute) {
-        data.time = `${data.hour}:${data.minute}`;
-    }
-
-    const fileInput = document.getElementById('image');
-    const file = fileInput.files[0];
-
-    // Функция для реальной отправки
-    const sendRequest = async (payload) => {
-        await fetch(scriptURL, {
+    // 5. Функция отправки
+    async function sendRequest(payload) {
+        fetch(scriptURL, {
             method: 'POST',
             mode: 'no-cors',
             body: new URLSearchParams(payload)
         });
-        status.style.color = "green";
-        status.textContent = "✅ Заказ и фото успешно отправлены!";
-        form.reset();
-        phoneInput.value = "";
-        btn.disabled = false;
-    };
 
-    if (file) {
-        // Читаем файл как Base64
-        const reader = new FileReader();
-        reader.onload = async function(event) {
-            data.fileData = event.target.result.split(',')[1];
-            data.fileName = file.name;
-            await sendRequest(data);
-        };
-        reader.readAsDataURL(file);
-    } else {
-        await sendRequest(data);
+        setTimeout(() => {
+            status.style.color = "green";
+            status.textContent = "✅ Заказ успешно отправлен!";
+            form.reset();
+            phoneInput.value = "";
+            btn.disabled = false;
+            setTimeout(() => { status.textContent = ""; }, 7000);
+        }, 2000);
     }
-});
-  
-  const hourSelect = document.getElementById('hours');
-// Заполняем часы с 8 до 20
-for (let i = 8; i <= 20; i++) {
-    let opt = document.createElement('option');
-    let val = i < 10 ? '0' + i : i;
-    opt.value = val;
-    opt.textContent = val;
-    hourSelect.appendChild(opt);
-}
+
+    // 6. ГЛАВНЫЙ ОБРАБОТЧИК
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('image');
+        
+        // --- ПРОВЕРКА КОЛИЧЕСТВА ФАЙЛОВ ---
+        if (fileInput.files.length > 3) {
+            alert("Ошибка: Вы выбрали " + fileInput.files.length + " фото. Пожалуйста, выберите не более 3-х фотографий.");
+            return; // Прекращаем выполнение
+        }
+        
+        if (phoneInput.value.replace(/\D/g, '').length !== 11) {
+            alert("Введите полный номер телефона!");
+            return;
+        }
+
+        btn.disabled = true;
+        status.style.color = "blue";
+        status.textContent = "⏳ Подготовка фото и отправка...";
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        if (data.hour && data.minute) {
+            data.time = `${data.hour}:${data.minute}`;
+        }
+
+        // Если есть файлы, сжимаем и добавляем в данные
+        if (fileInput.files.length > 0) {
+            const filesData = await getFilesData(fileInput.files);
+            data.filesJSON = JSON.stringify(filesData);
+        }
+        
+        await sendRequest(data);
+    });
 </script>
 
 </body>
