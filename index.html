@@ -97,7 +97,7 @@
     const hourSelect = document.getElementById('hours');
 
     // --- НАСТРОЙКИ ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzrFytzL2Lixs0kktayoyQtGPZ3Tc_x_mEuPdwvOG19JVgzgqeV1cfw5djm89nUHVuipg/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxsEKQliROFKs1pwkvWoXq9_YJPG602tYppSVXG8FjHOEZh2UKZIWAngJqAJq0SBc54KQ/exec';
 
     // 1. Заполняем часы (с 8 до 20)
     for (let i = 8; i <= 20; i++) {
@@ -227,57 +227,6 @@
         
         await sendRequest(data);
     });
-
-
-
-    const dateInput = document.getElementById('order-date');
-    const hourSelect = document.getElementById('hours');
-
-    // Функция проверки занятого времени
-    async function updateAvailableHours() {
-        const selectedDate = dateInput.value;
-        if (!selectedDate) return;
-
-        hourSelect.innerHTML = '<option value="">Загрузка...</option>';
-        
-        try {
-            const response = await fetch(scriptURL); // doGet срабатывает при обычном GET запросе
-            const bookedSlots = await response.json();
-
-            // Очищаем и заново заполняем часы
-            hourSelect.innerHTML = '<option value="">Час</option>';
-            for (let i = 8; i <= 20; i++) {
-                let h = i < 10 ? '0' + i : i.toString();
-                let isBooked = false;
-
-                // Проверяем: занят ли этот час или соседние (буфер 1 час)
-                bookedSlots.forEach(slot => {
-                    if (slot.date === selectedDate) {
-                        let bookedHour = parseInt(slot.time.split(':')[0]);
-                        let currentHour = parseInt(h);
-                        // Блокируем выбранный час + 1 час до и 1 час после
-                        if (currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1) {
-                            isBooked = true;
-                        }
-                    }
-                });
-
-                let opt = document.createElement('option');
-                opt.value = h;
-                opt.textContent = h;
-                if (isBooked) {
-                    opt.disabled = true;
-                    opt.textContent += " (занято)";
-                }
-                hourSelect.appendChild(opt);
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки слотов", e);
-        }
-    }
-
-    // Вызываем проверку при смене даты
-    dateInput.addEventListener('change', updateAvailableHours);
 </script>
 
 </body>
