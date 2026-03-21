@@ -97,7 +97,7 @@
     const hourSelect = document.getElementById('hours');
 
     // --- НАСТРОЙКИ ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxsEKQliROFKs1pwkvWoXq9_YJPG602tYppSVXG8FjHOEZh2UKZIWAngJqAJq0SBc54KQ/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzaoJO4EAP0YYBsQk9PHlrStMCST1vN3pdnoQrjJ8qXVjXnzoTVDmvhBRYMuRMHEcQYuw/exec';
 
     // 1. Заполняем часы (с 8 до 20)
     for (let i = 8; i <= 20; i++) {
@@ -227,6 +227,67 @@
         
         await sendRequest(data);
     });
+
+    // --- НОВОЕ: ЛОГИКА БЛОКИРОВКИ ВРЕМЕНИ ---
+
+    const dateInput = document.getElementById('order-date');
+
+    async function updateAvailableHours() {
+        const selectedDate = dateInput.value;
+        if (!selectedDate) return;
+
+        // Сначала заполняем все часы
+        hourSelect.innerHTML = '<option value="">Час</option>';
+        for (let i = 8; i <= 20; i++) {
+            let h = i < 10 ? '0' + i : i.toString();
+            let opt = document.createElement('option');
+            opt.value = h;
+            opt.textContent = h;
+            hourSelect.appendChild(opt);
+        }
+
+        try {
+            const response = await fetch(`${scriptURL}?t=${Date.now()}`);
+            const bookedSlots = await response.json();
+            
+            console.log("Занятые слоты из таблицы:", bookedSlots); // Посмотри это в консоли (F12)
+
+            Array.from(hourSelect.options).forEach(opt => {
+                if (!opt.value) return;
+                const currentHour = parseInt(opt.value);
+                let isBlocked = false;
+
+                bookedSlots.forEach(slot => {
+                    if (slot.date === selectedDate) {
+                        // Берем только час из строки "13:00" или "13"
+                        const bookedHour = parseInt(slot.time.split(':')[0]);
+                        
+                        // Блокируем ± 1 час
+                        if (currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1) {
+                            isBlocked = true;
+                        }
+                    }
+                });
+
+                if (isBlocked) {
+                    opt.disabled = true;
+                    opt.textContent = opt.value + " (занято)";
+                    opt.style.backgroundColor = "#ffebee"; // Подсветим красным для теста
+                }
+            });
+        } catch (e) {
+            console.error("Ошибка загрузки данных:", e);
+        }
+    }
+
+    // Слушаем изменение даты
+    dateInput.addEventListener('change', updateAvailableHours);
+    
+    // Запускаем проверку сразу при загрузке страницы для текущей даты
+    const todayStr = new Date().toISOString().split("T")[0];
+    dateInput.value = todayStr;
+    updateAvailableHours();
+    
 </script>
 
 </body>
