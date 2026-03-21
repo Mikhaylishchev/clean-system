@@ -78,12 +78,18 @@
             <label for="check">Согласен на обработку данных</label>
         </div>
 
+        
+        <div style="display:none;">
+            <input type="text" name="honeypot" id="honeypot" tabindex="-1" autocomplete="off">
+        </div>
+
         <button type="submit" id="submit-btn">Записаться</button>
     </form>
     <div id="status"></div>
 </div>
 
 <script>
+    const pageLoadTime = Date.now();
     const form = document.getElementById('order-form');
     const status = document.getElementById('status');
     const btn = document.getElementById('submit-btn');
@@ -175,6 +181,19 @@
     // 6. ГЛАВНЫЙ ОБРАБОТЧИК
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Проверка на бота
+        const honey = document.getElementById('honeypot').value;
+        if (honey) {
+            console.warn("Бот обнаружен!");
+            return; // Просто прерываем выполнение, ничего не отправляем
+        }
+
+        const timeFills = (Date.now() - pageLoadTime) / 1000;
+        if (timeFills < 4) { // Если прошло меньше 4 секунд
+            alert("Слишком быстрая отправка. Пожалуйста, заполните форму внимательнее.");
+            return;
+        }
 
         const fileInput = document.getElementById('image');
         
