@@ -115,7 +115,7 @@
 
 <script>
     // --- НАСТРОЙКИ ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwfqH99thr_UWACpd726kX4zCoZhqiIhd_KTghKzqTvC7MhJi_i2xjETbi29bzZZdHmTA/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwATJ478lfyec0A8AE3NiCPHJhw6SF9eNSCjtVaOwgFBv2OMr8K-X7JZ5lXWa35ZIhC6A/exec';
     
     const pageLoadTime = Date.now();
     const form = document.getElementById('order-form');
@@ -161,22 +161,33 @@
             const response = await fetch(`${scriptURL}?t=${Date.now()}`);
             const bookedSlots = await response.json();
             
+            console.log("Занятые слоты:", bookedSlots); // Проверь в консоли (F12)
+
             Array.from(hourSelect.options).forEach(opt => {
                 if (!opt.value) return;
+                
                 const currentHour = parseInt(opt.value);
+                
+                // Проверяем, есть ли совпадения в занятых слотах
                 const isBooked = bookedSlots.some(slot => {
+                    // Теперь оба значения — это просто строки "YYYY-MM-DD"
                     if (slot.date !== selectedDate) return false;
+
                     const bookedHour = parseInt(slot.time.split(':')[0]);
-                    return currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1;
+                    // Блокируем выбранный час и соседние
+                    return (currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1);
                 });
 
                 if (isBooked) {
                     opt.disabled = true;
                     opt.textContent = opt.value + " (занято)";
-                    opt.style.backgroundColor = "#ffebee";
+                    opt.style.backgroundColor = "#ffebee"; // Бледно-красный
+                    opt.style.color = "#999";
                 }
             });
-        } catch (e) { console.error("Ошибка синхронизации:", e); }
+        } catch (e) { 
+            console.error("Ошибка синхронизации слотов:", e); 
+        }
     }
 
     // --- 2. МАСКА И АВТОМАТИКА ---
