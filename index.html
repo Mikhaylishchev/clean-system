@@ -96,6 +96,8 @@
     const phoneInput = document.getElementById('phone');
     const hourSelect = document.getElementById('hours');
 
+    
+
     // --- НАСТРОЙКИ ---
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwrEADcvB1KyD9DP4c0j1rSP9dicyGz5MmU-L34uVOlpMPbN8U1yDLOX-DZttkpxvUSqg/exec';
 
@@ -233,52 +235,67 @@
     const dateInput = document.getElementById('order-date');
 
     async function updateAvailableHours() {
-        const selectedDate = dateInput.value;
-        if (!selectedDate) return;
+    const selectedDate = dateInput.value;
+    if (!selectedDate) return;
 
-        // Сначала заполняем все часы
-        hourSelect.innerHTML = '<option value="">Час</option>';
-        for (let i = 8; i <= 20; i++) {
+    // 1. ПОДГОТОВКА ТЕКУЩЕГО ВРЕМЕНИ
+    const now = new Date();
+    // Формат YYYY-MM-DD для сравнения с выбранной датой
+    const todayStr = now.getFullYear() + '-' + 
+                     String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                     String(now.getDate()).padStart(2, '0');
+    
+    // Определяем "час отсечки" (текущий час + 2)
+    const cutoffHour = now.getHours() + 2;
+
+    // 2. ЗАПОЛНЕНИЕ ЧАСОВ
+    hourSelect.innerHTML = '<option value="">Час</option>';
+    
+    // Твой цикл от 8 до 20
+    for (let i = 8; i <= 20; i++) {
+        // УСЛОВИЕ: Если дата сегодня, то час должен быть >= часа отсечки
+        // Если дата завтра или позже, условие всегда истинно
+        if (selectedDate > todayStr || i >= cutoffHour) {
             let h = i < 10 ? '0' + i : i.toString();
             let opt = document.createElement('option');
             opt.value = h;
             opt.textContent = h;
             hourSelect.appendChild(opt);
         }
+    }
 
-        try {
-            const response = await fetch(`${scriptURL}?t=${Date.now()}`);
-            const bookedSlots = await response.json();
-            
-            console.log("Занятые слоты из таблицы:", bookedSlots); // Посмотри это в консоли (F12)
+    // 3. ПРОВЕРКА ЗАНЯТЫХ СЛОТОВ (Твоя логика без изменений)
+    try {
+        const response = await fetch(`${scriptURL}?t=${Date.now()}`);
+        const bookedSlots = await response.json();
+        
+        console.log("Занятые слоты из таблицы:", bookedSlots);
 
-            Array.from(hourSelect.options).forEach(opt => {
-                if (!opt.value) return;
-                const currentHour = parseInt(opt.value);
-                let isBlocked = false;
+        Array.from(hourSelect.options).forEach(opt => {
+            if (!opt.value) return;
+            const currentHour = parseInt(opt.value);
+            let isBlocked = false;
 
-                bookedSlots.forEach(slot => {
-                    if (slot.date === selectedDate) {
-                        // Берем только час из строки "13:00" или "13"
-                        const bookedHour = parseInt(slot.time.split(':')[0]);
-                        
-                        // Блокируем ± 1 час
-                        if (currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1) {
-                            isBlocked = true;
-                        }
+            bookedSlots.forEach(slot => {
+                if (slot.date === selectedDate) {
+                    const bookedHour = parseInt(slot.time.split(':')[0]);
+                    // Блокируем ± 1 час вокруг занятого
+                    if (currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1) {
+                        isBlocked = true;
                     }
-                });
-
-                if (isBlocked) {
-                    opt.disabled = true;
-                    opt.textContent = opt.value + " (занято)";
-                    opt.style.backgroundColor = "#ffebee"; // Подсветим красным для теста
                 }
             });
-        } catch (e) {
-            console.error("Ошибка загрузки данных:", e);
-        }
+
+            if (isBlocked) {
+                opt.disabled = true;
+                opt.textContent = opt.value + " (занято)";
+                opt.style.backgroundColor = "#ffebee";
+            }
+        });
+    } catch (e) {
+        console.error("Ошибка загрузки данных:", e);
     }
+}
 
     // Слушаем изменение даты
     dateInput.addEventListener('change', updateAvailableHours);
@@ -286,6 +303,17 @@
     // Запускаем проверку сразу при загрузке страницы для текущей даты
     const todayStr = new Date().toISOString().split("T")[0];
     dateInput.value = todayStr;
+
+        // Автоматическая установка 00 минут при выборе часа
+    document.getElementById('hours').addEventListener('change', function() {
+        const minuteSelect = document.getElementById('minutes');
+        
+        // Если час выбран (не пустая строка) и минуты еще не выбраны
+        if (this.value !== "" && minuteSelect.value === "") {
+            minuteSelect.value = "00";
+        }
+    });
+    
     updateAvailableHours();
     
 </script>
