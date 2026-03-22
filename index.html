@@ -89,70 +89,107 @@
 </div>
 
 <script>
+    // --- НАСТРОЙКИ ---
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwrEADcvB1KyD9DP4c0j1rSP9dicyGz5MmU-L34uVOlpMPbN8U1yDLOX-DZttkpxvUSqg/exec';
+    
     const pageLoadTime = Date.now();
     const form = document.getElementById('order-form');
     const status = document.getElementById('status');
     const btn = document.getElementById('submit-btn');
     const phoneInput = document.getElementById('phone');
     const hourSelect = document.getElementById('hours');
+    const minuteSelect = document.getElementById('minutes');
+    const dateInput = document.getElementById('order-date');
 
-    
+    // --- 1. ФУНКЦИИ ДАТЫ И ВРЕМЕНИ ---
 
-    // --- НАСТРОЙКИ ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwrEADcvB1KyD9DP4c0j1rSP9dicyGz5MmU-L34uVOlpMPbN8U1yDLOX-DZttkpxvUSqg/exec';
+    // Правильная дата без смещения часовых поясов
+    const getLocalDateStr = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
-    // 1. Заполняем часы (с 8 до 20)
-    for (let i = 8; i <= 20; i++) {
-        let opt = document.createElement('option');
-        let val = i < 10 ? '0' + i : i;
-        opt.value = val;
-        opt.textContent = val;
-        hourSelect.appendChild(opt);
+    async function updateAvailableHours() {
+        const selectedDate = dateInput.value;
+        if (!selectedDate) return;
+
+        const now = new Date();
+        const todayStr = getLocalDateStr();
+        const cutoffHour = now.getHours() + 2;
+
+        // Очистка и заполнение базы (8:00 - 20:00)
+        hourSelect.innerHTML = '<option value="">Час</option>';
+        for (let i = 8; i <= 20; i++) {
+            if (selectedDate > todayStr || i >= cutoffHour) {
+                let h = i < 10 ? '0' + i : i.toString();
+                let opt = document.createElement('option');
+                opt.value = h; opt.textContent = h;
+                hourSelect.appendChild(opt);
+            }
+        }
+
+        // Блокировка занятых слотов
+        try {
+            const response = await fetch(`${scriptURL}?t=${Date.now()}`);
+            const bookedSlots = await response.json();
+            
+            Array.from(hourSelect.options).forEach(opt => {
+                if (!opt.value) return;
+                const currentHour = parseInt(opt.value);
+                const isBooked = bookedSlots.some(slot => {
+                    if (slot.date !== selectedDate) return false;
+                    const bookedHour = parseInt(slot.time.split(':')[0]);
+                    return currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1;
+                });
+
+                if (isBooked) {
+                    opt.disabled = true;
+                    opt.textContent = opt.value + " (занято)";
+                    opt.style.backgroundColor = "#ffebee";
+                }
+            });
+        } catch (e) { console.error("Ошибка синхронизации:", e); }
     }
 
-    // 2. Ограничение даты (минимум сегодня)
-    document.getElementById('order-date').min = new Date().toISOString().split("T")[0];
+    // --- 2. МАСКА И АВТОМАТИКА ---
 
-    // 3. Маска телефона
-    const prefix = '8 (9';
-    phoneInput.addEventListener('input', () => {
+    phoneInput.addEventListener('input', (e) => {
         let val = phoneInput.value.replace(/\D/g, '');
-        if (phoneInput.value.length < prefix.length) { phoneInput.value = prefix; return; }
-        let extra = val.substring(2); 
-        let formatted = prefix;
-        if (extra.length > 0) formatted += extra.substring(0, 2);
-        if (extra.length > 2) formatted += ') ' + extra.substring(2, 5);
-        if (extra.length > 5) formatted += '-' + extra.substring(5, 7);
-        if (extra.length > 7) formatted += '-' + extra.substring(7, 9);
-        phoneInput.value = formatted.substring(0, 17);
+        if (val.startsWith('7')) val = '8' + val.substring(1);
+        if (val && !val.startsWith('8')) val = '8' + val;
+        
+        let res = '8';
+        if (val.length > 1) res += ' (' + val.substring(1, 4);
+        if (val.length > 4) res += ') ' + val.substring(4, 7);
+        if (val.length > 7) res += '-' + val.substring(7, 9);
+        if (val.length > 9) res += '-' + val.substring(9, 11);
+        phoneInput.value = res.substring(0, 18);
     });
-    phoneInput.addEventListener('focus', () => { if(!phoneInput.value) phoneInput.value = prefix; });
 
-    // 4. Функция сжатия фото (до 3-х штук)
+    hourSelect.addEventListener('change', () => {
+        if (hourSelect.value && !minuteSelect.value) minuteSelect.value = "00";
+    });
+
+    // --- 3. ОБРАБОТКА ФОТО ---
+
     const getFilesData = async (files) => {
-        // Берем только первые 3, если вдруг кто-то выбрал больше
-        const selectedFiles = Array.from(files).slice(0, 3);
-        const promises = selectedFiles.map(file => {
+        const promises = Array.from(files).slice(0, 3).map(file => {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        const MAX_SIZE = 1200; // Немного увеличим качество для альбома
-                        if (width > height) {
-                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                        } else {
-                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                        }
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                        resolve({ data: dataUrl.split(',')[1], name: file.name });
+                        let w = img.width, h = img.height;
+                        const MAX = 1200;
+                        if (w > h && w > MAX) { h *= MAX/w; w = MAX; }
+                        else if (h > MAX) { w *= MAX/h; h = MAX; }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve({ data: canvas.toDataURL('image/jpeg', 0.7).split(',')[1], name: file.name });
                     };
                     img.src = e.target.result;
                 };
@@ -162,160 +199,55 @@
         return Promise.all(promises);
     };
 
-    // 5. Функция отправки
-    async function sendRequest(payload) {
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: new URLSearchParams(payload)
-        });
+    // --- 4. ОТПРАВКА ---
 
-        setTimeout(() => {
-            status.style.color = "green";
-            status.textContent = "✅ Заказ успешно отправлен!";
-            form.reset();
-            phoneInput.value = "";
-            btn.disabled = false;
-            setTimeout(() => { status.textContent = ""; }, 7000);
-        }, 2000);
-    }
-
-    // 6. ГЛАВНЫЙ ОБРАБОТЧИК
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Проверка на бота
-        const honey = document.getElementById('honeypot').value;
-        if (honey) {
-            console.warn("Бот обнаружен!");
-            return; // Просто прерываем выполнение, ничего не отправляем
-        }
-
-        const timeFills = (Date.now() - pageLoadTime) / 1000;
-        if (timeFills < 4) { // Если прошло меньше 4 секунд
-            alert("Слишком быстрая отправка. Пожалуйста, заполните форму внимательнее.");
+        if (document.getElementById('honeypot').value || (Date.now() - pageLoadTime) < 4000) {
+            alert("Ошибка безопасности. Попробуйте снова через пару секунд.");
             return;
         }
 
-        const fileInput = document.getElementById('image');
-        
-        // --- ПРОВЕРКА КОЛИЧЕСТВА ФАЙЛОВ ---
-        if (fileInput.files.length > 3) {
-            alert("Ошибка: Вы выбрали " + fileInput.files.length + " фото. Пожалуйста, выберите не более 3-х фотографий.");
-            return; // Прекращаем выполнение
-        }
-        
-        if (phoneInput.value.replace(/\D/g, '').length !== 11) {
-            alert("Введите полный номер телефона!");
-            return;
-        }
+        const files = document.getElementById('image').files;
+        if (files.length > 3) { return alert("Максимум 3 фото!"); }
 
         btn.disabled = true;
         status.style.color = "blue";
-        status.textContent = "⏳ Подготовка фото и отправка...";
+        status.textContent = "⏳ Отправка заказа...";
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        data.time = `${data.hour}:${data.minute}`;
 
-        if (data.hour && data.minute) {
-            data.time = `${data.hour}:${data.minute}`;
+        if (files.length > 0) {
+            data.filesJSON = JSON.stringify(await getFilesData(files));
         }
 
-        // Если есть файлы, сжимаем и добавляем в данные
-        if (fileInput.files.length > 0) {
-            const filesData = await getFilesData(fileInput.files);
-            data.filesJSON = JSON.stringify(filesData);
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
+            
+            // Имитируем ожидание для наглядности
+            setTimeout(() => {
+                status.style.color = "green";
+                status.textContent = "✅ Заказ успешно отправлен!";
+                form.reset();
+                dateInput.value = getLocalDateStr();
+                updateAvailableHours();
+                btn.disabled = false;
+            }, 1500);
+        } catch (err) {
+            status.style.color = "red";
+            status.textContent = "❌ Ошибка сети.";
+            btn.disabled = false;
         }
-        
-        await sendRequest(data);
     });
 
-    // --- НОВОЕ: ЛОГИКА БЛОКИРОВКИ ВРЕМЕНИ ---
-
-    const dateInput = document.getElementById('order-date');
-
-    async function updateAvailableHours() {
-    const selectedDate = dateInput.value;
-    if (!selectedDate) return;
-
-    // 1. ПОДГОТОВКА ТЕКУЩЕГО ВРЕМЕНИ
-    const now = new Date();
-    // Формат YYYY-MM-DD для сравнения с выбранной датой
-    const todayStr = now.getFullYear() + '-' + 
-                     String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                     String(now.getDate()).padStart(2, '0');
-    
-    // Определяем "час отсечки" (текущий час + 2)
-    const cutoffHour = now.getHours() + 2;
-
-    // 2. ЗАПОЛНЕНИЕ ЧАСОВ
-    hourSelect.innerHTML = '<option value="">Час</option>';
-    
-    // Твой цикл от 8 до 20
-    for (let i = 8; i <= 20; i++) {
-        // УСЛОВИЕ: Если дата сегодня, то час должен быть >= часа отсечки
-        // Если дата завтра или позже, условие всегда истинно
-        if (selectedDate > todayStr || i >= cutoffHour) {
-            let h = i < 10 ? '0' + i : i.toString();
-            let opt = document.createElement('option');
-            opt.value = h;
-            opt.textContent = h;
-            hourSelect.appendChild(opt);
-        }
-    }
-
-    // 3. ПРОВЕРКА ЗАНЯТЫХ СЛОТОВ (Твоя логика без изменений)
-    try {
-        const response = await fetch(`${scriptURL}?t=${Date.now()}`);
-        const bookedSlots = await response.json();
-        
-        console.log("Занятые слоты из таблицы:", bookedSlots);
-
-        Array.from(hourSelect.options).forEach(opt => {
-            if (!opt.value) return;
-            const currentHour = parseInt(opt.value);
-            let isBlocked = false;
-
-            bookedSlots.forEach(slot => {
-                if (slot.date === selectedDate) {
-                    const bookedHour = parseInt(slot.time.split(':')[0]);
-                    // Блокируем ± 1 час вокруг занятого
-                    if (currentHour >= bookedHour - 1 && currentHour <= bookedHour + 1) {
-                        isBlocked = true;
-                    }
-                }
-            });
-
-            if (isBlocked) {
-                opt.disabled = true;
-                opt.textContent = opt.value + " (занято)";
-                opt.style.backgroundColor = "#ffebee";
-            }
-        });
-    } catch (e) {
-        console.error("Ошибка загрузки данных:", e);
-    }
-}
-
-    // Слушаем изменение даты
+    // Старт
+    dateInput.min = getLocalDateStr();
+    dateInput.value = getLocalDateStr();
     dateInput.addEventListener('change', updateAvailableHours);
-    
-    // Запускаем проверку сразу при загрузке страницы для текущей даты
-    const todayStr = new Date().toISOString().split("T")[0];
-    dateInput.value = todayStr;
-
-        // Автоматическая установка 00 минут при выборе часа
-    document.getElementById('hours').addEventListener('change', function() {
-        const minuteSelect = document.getElementById('minutes');
-        
-        // Если час выбран (не пустая строка) и минуты еще не выбраны
-        if (this.value !== "" && minuteSelect.value === "") {
-            minuteSelect.value = "00";
-        }
-    });
-    
     updateAvailableHours();
-    
 </script>
 
 </body>
