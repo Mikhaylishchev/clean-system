@@ -80,8 +80,12 @@
 
         <div class="address-wrapper">
             <label>Адрес</label>
-            <input type="text" id="address" autocomplete="off" placeholder="Адрес в Тюмени">
+            <div style="display: flex; gap: 5px;">
+            <input type="text" id="address" name="address" placeholder="Адрес в Тюмени" required>
             <div id="address-suggestions" class="suggestions-container"></div>
+            <div id="address-suggestions" class="suggestions-container"></div>
+            <input type="number" id="flat" name="flat" placeholder="Кв / Офис" style="width: 120px;">
+            </div>
         </div>
 
         <label>Что чистим?</label>
@@ -122,7 +126,7 @@
         <input type="file" id="image" accept="image/*" multiple>
 
         <label>Комментарий</label>
-        <textarea name="message" rows="2" placeholder="Укажите тип загрязнения или вопрос"></textarea>
+        <textarea name="message" rows="2" placeholder="Укажите тип загрязнения, материал отделки или задайте вопрос"></textarea>
 
         <div class="consent">
             <input type="checkbox" id="check" checked required>
@@ -273,6 +277,8 @@
         return Promise.all(promises);
     };
 
+
+    
     // --- 4. ОТПРАВКА ---
 
     form.addEventListener('submit', async (e) => {
@@ -284,17 +290,39 @@
             return;
         }
 
-        // 2. Проверка фото
+        // 2. Проверка адреса ПЕРЕД отправкой формы
+        function validateAddress() {
+            const val = addressInput.value;
+            // Регулярка: ищем хотя бы одну цифру (номер дома) в строке
+            const hasNumber = /\d/.test(val); 
+            
+            if (!hasNumber) {
+                alert("Пожалуйста, выберите адрес с номером дома из списка!");
+                addressInput.focus();
+                return false;
+            }
+            return true;
+        }
+
+        if (!validateAddress()) return;
+
+        
+        // 3. Проверка фото
         const files = document.getElementById('image').files;
         if (files.length > 3) { return alert("Максимум 3 фото!"); }
 
-        // 3. Визуал "Загрузка"
+        // 4. Визуал "Загрузка"
         btn.disabled = true;
         status.style.color = "blue";
         status.textContent = "⏳ Отправка заказа...";
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+ 
+        if (data.flat && data.flat.trim() !== "") {
+            data.address = data.address + ", кв/оф: " + data.flat;
+        }
+ 
         data.time = `${data.hour}:${data.minute}`;
 
         if (files.length > 0) {
@@ -313,7 +341,7 @@
             if (result.result === 'success') {
                 status.textContent = ""; // Очищаем статусную строку
                 
-                // Показываем красивое окно с реальным номером заказа
+                // Показываем модальное окно с номером заказа
                 showModal(result.orderNumber);
                 
                 // Очистка формы
@@ -352,9 +380,10 @@ const addressInput = document.getElementById('address');
 const suggestionsBox = document.getElementById('address-suggestions');
 const API_TOKEN = "5093f898045bde0c376afa1c9a96e738c4549be6";
 
+// 1. Порог входа (с 1 буквы)
 addressInput.addEventListener('input', async function() {
     const query = this.value;
-    if (query.length < 3) {
+    if (query.length < 1) {
         suggestionsBox.style.display = 'none';
         return;
     }
