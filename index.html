@@ -35,17 +35,24 @@
 
 
 
+      
         .suggestions-container {
             position: absolute;
+            /* Указываем, что список должен начинаться строго под инпутом */
+            top: 100%; 
+            left: 0;
+            
             background: white;
             border: 1px solid #ccc;
-            width: 100%;
+            width: 100%; /* Теперь это 100% от ширины поля адреса, а не всей формы */
             max-height: 200px;
             overflow-y: auto;
             z-index: 1000;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: none; /* По умолчанию скрыт */
+            display: none;
+            margin-top: 2px; /* Маленький зазор для красоты */
         }
+        
         .suggestion-item {
             padding: 10px;
             cursor: pointer;
@@ -292,15 +299,22 @@
 
         // 2. Проверка адреса ПЕРЕД отправкой формы
         function validateAddress() {
-            const val = addressInput.value;
-            // Регулярка: ищем хотя бы одну цифру (номер дома) в строке
+            const val = addressInput.value.trim();
+
+            // 1. Проверка на наличие букв (название улицы/города)
+            // [а-яА-ЯёЁa-zA-Z] — ищем хотя бы одну букву
+            const hasLetters = /[а-яА-ЯёЁa-zA-Z]/.test(val);
+
+            // 2. Проверка на наличие цифр (номер дома)
             const hasNumber = /\d/.test(val); 
-            
-            if (!hasNumber) {
-                alert("Пожалуйста, выберите адрес с номером дома из списка!");
+
+            // Логика: если нет букв ИЛИ нет цифр — адрес неполный
+            if (!hasLetters || !hasNumber) {
+                alert("Пожалуйста, введите полный адрес: улицу и номер дома. Выберите вариант из выпадающего списка.");
                 addressInput.focus();
                 return false;
             }
+
             return true;
         }
 
@@ -380,10 +394,10 @@ const addressInput = document.getElementById('address');
 const suggestionsBox = document.getElementById('address-suggestions');
 const API_TOKEN = "5093f898045bde0c376afa1c9a96e738c4549be6";
 
-// 1. Порог входа (с 1 буквы)
+// 1. Порог входа (с 2 букв)
 addressInput.addEventListener('input', async function() {
     const query = this.value;
-    if (query.length < 1) {
+    if (query.length < 2) {
         suggestionsBox.style.display = 'none';
         return;
     }
@@ -416,32 +430,41 @@ addressInput.addEventListener('input', async function() {
 });
 
 function showSuggestions(list) {
-    if (!list.length) {
+    // ФИЛЬТРАЦИЯ: Убираем из списка подсказки, где нет улицы (data.street)
+    // Это отсечет одинокие "д. 12" без названия улицы
+    const filteredList = list.filter(item => item.data.street);
+
+    if (!filteredList.length) {
         suggestionsBox.style.display = 'none';
         return;
     }
 
     suggestionsBox.innerHTML = '';
-    list.forEach(item => {
+    filteredList.forEach(item => {
         const div = document.createElement('div');
         div.className = 'suggestion-item';
         div.textContent = item.value;
         
         div.onclick = function(e) {
-            e.stopPropagation(); // Чтобы клик не всплывал к документу
+            e.stopPropagation();
             
+            // Записываем текущее значение в инпут
             addressInput.value = item.value;
             
-            // ПРОВЕРКА: Если в выбранном адресе есть дом (house), тогда закрываем.
-            // Если дома нет — оставляем список открытым для уточнения.
+            // ЛОГИКА ЗАВЕРШЕНИЯ:
+            // 1. Если есть номер дома (house) — всё отлично, адрес полный.
             if (item.data.house) {
-                suggestionsBox.style.display = 'none';
+                suggestionsBox.style.display = 'none'; 
+                // Можно добавить визуальное подтверждение (например, зеленую рамку)
+                addressInput.style.borderColor = "#28a745"; 
             } else {
-                // Добавляем пробел в конце, чтобы пользователь сразу вводил номер дома
-                addressInput.value += " "; 
-                // Возвращаем фокус и вызываем поиск снова
+                // 2. Если дома нет (выбрана только улица)
+                addressInput.style.borderColor = "#ced4da"; // обычный цвет
+                addressInput.value += ", "; // Добавляем запятую и пробел для наглядности
                 addressInput.focus();
-                addressInput.dispatchEvent(new Event('input'));
+                
+                // Сразу вызываем новый поиск, чтобы DaData предложила номера домов для этой улицы
+                addressInput.dispatchEvent(new Event('input')); 
             }
         };
         suggestionsBox.appendChild(div);
