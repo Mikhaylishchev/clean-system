@@ -48,6 +48,24 @@
         }
         .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
         .suggestion-item:hover { background: #f0f8ff; }
+
+        .date-suggest-btn {
+            background: #f0f7ff;
+            border: 1px solid #007bff;
+            color: #007bff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px 0;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            width: 80%; /* Чтобы кнопки были аккуратными в столбик */
+        }
+
+        .date-suggest-btn:hover {
+            background: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -121,11 +139,11 @@
 
 <div id="orderModal" class="modal-overlay">
     <div class="modal">
-        <h3 style="color: #2ecc71;">Заказ принят!</h3>
-        <p>Ваш номер заказа:</p>
-        <div class="order-num" id="displayOrderNum">0000</div>
-        <p>Мастер свяжется с вами в течение 15 минут.</p>
-        <button onclick="location.reload()" style="background:#007bff; color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-weight:600;">Отлично</button>
+        <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
+        <h3 id="modal-title"></h3>
+        <p id="modal-text"></p>
+        <div id="modal-extra" style="margin: 15px 0;"></div>
+        <button id="modal-btn" onclick="closeModal()" style="background:#007bff; color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-weight:600;">Понятно</button>
     </div>
 </div>
 
@@ -154,31 +172,85 @@
     const loadingInterval = setInterval(() => {
         dots = dots.length >= 3 ? "" : dots + ".";
         hourSelect.innerHTML = `<option value="">Загрузка${dots}</option>`;
-    }, 400); // Скорость бега точек
+    }, 400); 
     // -------------------------
 
     try {
         const response = await fetch(`${scriptURL}?t=${Date.now()}`);
         const bookedSlots = await response.json();
         
-        clearInterval(loadingInterval); // Останавливаем анимацию, когда данные пришли
+        clearInterval(loadingInterval);
         hourSelect.innerHTML = '<option value="">Час</option>';
 
-        // Проверка на полную блокировку дня
+        // 1. ПРОВЕРКА НА ПОЛНУЮ БЛОКИРОВКУ ДНЯ
         const isFullDayBlocked = bookedSlots.some(slot => slot.date === selectedDate && slot.time === "Весь день");
+        
         if (isFullDayBlocked) {
-            alert("Этот день полностью занят или недоступен.");
-            dateInput.value = "";
+            // ФУНКЦИЯ ПОИСКА БЛИЖАЙШИХ СВОБОДНЫХ ДАТ
+            // Превращаем "2026-03-27" в "27 марта" для текста ошибки
+            const formattedSelectedDate = new Date(selectedDate).toLocaleDateString('ru-RU', { 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            
+            const findNearby = (direction) => {
+            let current = new Date(selectedDate);
+            for (let i = 1; i <= 10; i++) {
+                current.setDate(current.getDate() + direction);
+                let dateStr = current.toISOString().split('T')[0];
+                let isBlocked = bookedSlots.some(s => s.date === dateStr && s.time === "Весь день");
+                let today = new Date();
+                today.setHours(0,0,0,0);
+                
+                if (!isBlocked && current >= today) {
+                    return {
+                        raw: dateStr, // "2026-03-28"
+                        nice: current.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) // "28 марта"
+                    };
+                }
+            }
+            return null;
+        };
+
+        const prev = findNearby(-1);
+        const next = findNearby(1);
+        
+        let advice = "<b>Ближайшие свободные даты:</b><br><div style='margin-top:10px;'>";
+        
+        // Создаем кликабельные кнопки прямо в строке
+        if (prev) {
+            advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${prev.raw}')">⬅️ ${prev.nice}</button><br>`;
+        }
+        if (next) {
+            advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${next.raw}')">➡️ ${next.nice}</button>`;
+        }
+        advice += "</div>";
+
+            // Вызываем наше красивое модальное окно вместо alert
+            showModal(
+                "День занят", 
+                `К сожалению, на <b>${formattedSelectedDate}</b> запись невозможна.`, 
+                "error", 
+                advice
+            );
+
+            dateInput.value = ""; // Сбрасываем дату
+            hourSelect.innerHTML = '<option value="">Выберите дату...</option>';
             return;
         }
 
+        // 2. ОТРИСОВКА ДОСТУПНЫХ ЧАСОВ (если день не заблокирован)
         const now = new Date();
         const todayStr = getLocalDateStr();
         const cutoffHour = now.getHours() + 2;
 
         for (let i = 8; i <= 20; i++) {
             let hStr = i.toString().padStart(2, '0');
+            
+            // Проверка: не прошло ли время (для сегодняшнего дня)
             if (selectedDate > todayStr || i >= cutoffHour) {
+                
+                // Проверка занятости конкретного слота (+-1 час от существующих заказов)
                 const isBooked = bookedSlots.some(slot => {
                     if (slot.date !== selectedDate) return false;
                     const bookedHour = parseInt(slot.time.split(':')[0]);
@@ -187,17 +259,71 @@
 
                 let opt = document.createElement('option');
                 opt.value = hStr;
-                opt.textContent = isBooked ? `${hStr} ч. (занято)` : `${hStr} ч.`;
-                if (isBooked) { opt.disabled = true; opt.style.color = "#ccc"; }
+                opt.textContent = isBooked ? `${hStr} (занято)` : `${hStr}`;
+                
+                if (isBooked) { 
+                    opt.disabled = true; 
+                    opt.style.color = "#ccc"; 
+                }
                 hourSelect.appendChild(opt);
             }
         }
+
+        // Если после фильтрации список часов пуст (например, вечер текущего дня)
+        if (hourSelect.options.length <= 1) {
+            hourSelect.innerHTML = '<option value="">На сегодня записей нет</option>';
+        }
+
     } catch (e) {
         clearInterval(loadingInterval);
         hourSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-        console.error("Ошибка:", e);
+        console.error("Ошибка синхронизации:", e);
     }
 }
+
+    // Управление модальным окном
+    function showModal(title, text, type = 'success', extraHtml = '', orderNum = null) {
+    const modal = document.getElementById('orderModal');
+    const titleEl = document.getElementById('modal-title');
+    const textEl = document.getElementById('modal-text');
+    const iconEl = document.getElementById('modal-icon');
+    const extraEl = document.getElementById('modal-extra');
+    const btn = document.getElementById('modal-btn');
+    const orderNumDisplay = document.getElementById('displayOrderNum');
+
+    // Заполняем данные
+    titleEl.textContent = title;
+    textEl.innerHTML = text; // Используем innerHTML на случай, если в тексте будут <br>
+    extraEl.innerHTML = extraHtml;
+    
+    if (type === 'error') {
+        iconEl.textContent = '📅';
+        titleEl.style.color = '#e74c3c';
+        if (orderNumDisplay) orderNumDisplay.style.display = 'none'; // Скрываем блок номера, если это ошибка
+        btn.onclick = () => { modal.style.display = 'none'; };
+    } else {
+        iconEl.textContent = '✅';
+        titleEl.style.color = '#2ecc71';
+        
+        // Если передан номер заказа — показываем его в твоем красивом поле
+        if (orderNum && orderNumDisplay) {
+            orderNumDisplay.textContent = orderNum;
+            orderNumDisplay.style.display = 'block';
+        }
+        
+        // Сбрасываем форму только при успехе
+        document.getElementById('order-form').reset();
+        
+        // Кнопка "Отлично" при успехе перезагружает страницу для чистоты
+        btn.onclick = () => { location.reload(); };
+    }
+    
+    modal.style.display = 'flex';
+}
+
+    function closeModal() {
+        document.getElementById('orderModal').style.display = 'none';
+    }
 
     // 2. DaData Подсказки
     addressInput.addEventListener('input', async function() {
@@ -288,9 +414,14 @@
             const resp = await fetch(scriptURL, { method: 'POST', body: new URLSearchParams(data) });
             const res = await resp.json();
             if (res.result === 'success') {
-                document.getElementById('displayOrderNum').textContent = res.orderNumber;
-                document.getElementById('orderModal').style.display = 'flex';
-                form.reset();
+                // Передаем заголовок, текст, тип "success", пустой доп.контент и сам НОМЕР заказа
+                showModal(
+                    "Заказ принят!", 
+                    "Мастер свяжется с вами в ближайшее время.", 
+                    "success", 
+                    "", 
+                    res.orderNumber
+                );
             }
         } catch (err) {
             status.style.color = "red";
@@ -311,6 +442,18 @@
         if (val.length > 9) res += '-' + val.substring(9, 11);
         e.target.value = res.substring(0, 18);
     });
+
+
+    // Функция для выбора даты прямо из модального окна
+    function selectSuggestedDate(dateIso) {
+        const dateInput = document.getElementById('order-date');
+        dateInput.value = dateIso; // Подставляем дату (например, 2026-03-28)
+        closeModal(); // Закрываем окно
+        
+        // Инициируем обновление часов для новой даты
+        // Мы вызываем функцию вручную, так как программное изменение .value не всегда триггерит 'change'
+        updateAvailableHours(); 
+    }
 
     // Старт
     dateInput.min = getLocalDateStr();
