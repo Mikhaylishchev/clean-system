@@ -3,464 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Химчистка мебели | Заявка</title>
-    <style>
-
-        /* Анимация бегающих точек */
-        .loading-dots::after {
-        content: '.';
-        animation: dots 1.5s steps(5, end) infinite;
-        }
-
-        @keyframes dots {
-        0%, 20% { content: '.'; }
-        40% { content: '..'; }
-        60% { content: '...'; }
-        80%, 100% { content: ''; }
-        }
-
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 450px; }
-        h2 { text-align: center; color: #333; margin-top: 0; }
-        label { display: block; margin: 12px 0 5px; font-size: 14px; color: #666; font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
-        input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
-        button { width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        button:hover { background: #0056b3; }
-        button:disabled { background: #ccc; }
-        #status { text-align: center; margin-top: 15px; font-weight: 600; min-height: 24px; }
-        .consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 12px; color: #888; }
-        .consent input { width: auto; margin-top: 3px; }
-
-        /* Модальное окно */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
-        .modal { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: scaleUp 0.3s ease; }
-        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .order-num { font-size: 48px; font-weight: 800; color: #333; margin: 20px 0; }
-        
-        /* Стили DaData и Адреса */
-        .address-wrapper { position: relative; width: 100%; }
-        .address-row { display: flex; gap: 5px; }
-        .suggestions-container {
-            position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ccc;
-            width: 100%; max-height: 200px; overflow-y: auto; z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; margin-top: 2px;
-        }
-        .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
-        .suggestion-item:hover { background: #f0f8ff; }
-
-        .date-suggest-btn {
-            background: #f0f7ff;
-            border: 1px solid #007bff;
-            color: #007bff;
-            padding: 8px 15px;
-            border-radius: 20px;
-            margin: 5px 0;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-            width: 80%; /* Чтобы кнопки были аккуратными в столбик */
-        }
-
-        .date-suggest-btn:hover {
-            background: #007bff;
-            color: white;
-        }
-    </style>
+    <title>Химчистка мебели в Тюмени | Частный мастер Сергей</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    
 </head>
 <body>
 
-<div class="card">
-    <h2>Заявка на химчистку</h2>
-    <form id="order-form">
-        <label>Ваше имя</label>
-        <input type="text" name="name" placeholder="Имя" required>
+    <!-- HERO СЕКЦИЯ (Фото на пол-экрана с бесшовным растворением) -->
+    <header class="hero">
+        <div class="hero-bg-image"></div>
+        
+        <div class="hero-content reveal">
+            <div class="trust-badge"><a href="#reviews-container-wrapper">⭐ 5.0 рейтинг на Авито | 291 отзыв</a></div>
+            <h1>Профессиональная химчистка мебели<br>в Тюмени</h1>
+            <p>Частный мастер Сергей. Спасаю диваны и матрасы от пятен, запахов и грязи. 100% безопасно для детей и животных.</p>
+            <div class="promo-banner">🔥 ЧИСТКА ДО 4 ПОДУШЕК БЕСПЛАТНО</div>
+            <div class="hero-buttons">
+                <button onclick="goToForm('LIGHT')" class="btn">
+                    Рассчитать стоимость
+                </button>
 
-        <label>Телефон</label>
+                <a href="#prices" class="btn btn-outline">Смотреть прайс-лист</a>
+
+                <button onclick="goToForm('FULL')" class="btn btn-order">
+                    Оформить заявку
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ДО / ПОСЛЕ -->
+    <section class="gallery-section reveal">
+        <div class="container">
+            <h2>Результат моей работы</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev-btn" id="btn-prev">&#8249;</button>
+                <div class="carousel-track" id="carousel-track">
+                    <!-- Слайды генерируются через JS -->
+                </div>
+                <button class="carousel-btn next-btn" id="btn-next">&#8250;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- УСЛУГИ И ЦЕНЫ -->
+    <section id="prices" class="prices-section">
+        <div class="container">
+            <h2>Услуги и цены</h2>
+            <div class="tabs" id="tabs-container">
+                <!-- Табы генерируются через JS -->
+            </div>
+            
+            <div class="prices-wrapper" id="prices-container">
+                <!-- Цены генерируются через JS -->
+            </div>
+            <p style="text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-light);">
+                *Минимальная сумма заказа: 2400 ₽. Выезд по Тюмени в день заказа.
+            </p>
+        </div>
+    </section>
+
+    <!-- ЭТАПЫ РАБОТЫ -->
+    <section class="container reveal">
+        <h2>Как я спасаю вашу мебель</h2>
+        <p class="tech-info">
+            Использую моющий пылесос <span>Kärcher</span> (Германия) и безопасную гипоаллергенную химию <span>Exeelon</span>. 
+            <br>Абсолютно безопасно для детей и животных!
+        </p>
+        <div class="steps-grid" id="steps-container">
+            <!-- Этапы генерируются через JS -->
+        </div>
+    </section>
+
+    <!-- ОТЗЫВЫ -->
+    <section id="reviews-container-wrapper" class="reviews-section reveal">
+        <div class="container" style="max-width: 100%;">
+            <h2>Отзывы моих клиентов</h2>
+            <div class="reviews-container" id="reviews-container" style="margin-bottom: 20px;">
+                <!-- Отзывы генерируются через JS -->
+            </div>
+            <div style="text-align: center;">
+                <a target="_blank" href="https://www.avito.ru/tyumen/predlozheniya_uslug/himchistka_mebeli_divana_matrasa_kresla_stulev_3799926749#open-reviews-list" class="btn btn-outline" style="max-width: 300px; display: inline-flex;">
+                    Смотреть все отзывы
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- СЕКЦИЯ ДЛЯ ФОРМЫ -->
+    <section class="form-section reveal delay-1" id="form">
+        <div class="container">
+            <div class="form-container">
+                
+                <div class="form-tabs">
+                    <button type="button" id="tab-light" class="tab-btn active" onclick="switchForm('LIGHT')">
+                        Узнать стоимость работ
+                    </button>
+                    <button type="button" id="tab-full" class="tab-btn" onclick="switchForm('FULL')">
+                        Оформить заявку
+                    </button>
+                </div>
+
+                <h2 id="form-title">Оставить заявку</h2>
+                <p>Заполните форму и приложите фото. <br>После оценки я назову точную цену стоимость работы.</p>
+                
+                <form id="order-form" class="form-grid">
+    <input type="hidden" id="form_type" name="form_type" value="LIGHT">
+    <input type="hidden" id="session_id" name="session_id">
+    
+    <div class="input-group">
+        <label for="name">Ваше имя *</label>
+        <input type="text" id="name" name="name" placeholder="Имя" required>
+    </div>
+
+    <div class="input-group">
+        <label for="phone">Телефон *</label>
         <input type="tel" id="phone" name="phone" placeholder="8 (9XX) XXX-XX-XX" required>
+    </div>
 
-        <label>Адрес</label>
+    <div id="extra-fields-address" class="input-group full-width">
+        <label for="address">Адрес в Тюмени</label>
         <div class="address-row">
             <div class="address-wrapper">
-                <input type="text" id="address" name="address" placeholder="Адрес в Тюмени" required autocomplete="off">
+                <input type="text" id="address" name="address" placeholder="Начните вводить улицу..." autocomplete="off">
                 <div id="address-suggestions" class="suggestions-container"></div>
             </div>
-            <input type="number" id="flat" name="flat" placeholder="Кв / Офис" style="width: 110px;">
+            <input type="number" id="flat" name="flat" placeholder="Кв / Офис" style="width: 140px;">
         </div>
+    </div>
 
-        <label>Что чистим?</label>
-        <select name="service" required>
-            <option value="">Выберите услугу...</option>
+    <div class="input-group full-width" id="extra-fields-type-of-furniture">
+        <label for="service">Что будем чистить?</label>
+        <select id="service" name="service" required>
+            <option value="" disabled selected>Выберите тип мебели...</option>
             <option value="Диван">Диван</option>
             <option value="Матрас">Матрас</option>
             <option value="Кресло">Кресло</option>
             <option value="Ковер">Ковер</option>
+            <option value="Другое">Несколько предметов / Другое</option>
         </select>
-
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>Дата</label>
-                <input type="date" id="order-date" name="date" required>
-            </div>
-            <div style="flex: 1;">
-                <label>Время</label>
-                <div style="display: flex; gap: 5px; align-items: center;">
-                    <select id="hours" name="hour" required><option value="">Час</option></select>
-                    <span>:</span>
-                    <select id="minutes" name="minute" required>
-                        <option value="">Мин</option>
-                        <option value="00">00</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                        <option value="40">40</option>
-                        <option value="50">50</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <label>Фото мебели (до 3-х)</label>
-        <input type="file" id="image" accept="image/*" multiple>
-
-        <label>Комментарий</label>
-        <textarea name="message" rows="2" placeholder="Укажите особенности..."></textarea>
-
-        <div class="consent">
-            <input type="checkbox" id="check" checked required>
-            <label for="check">Согласен на обработку данных</label>
-        </div>
-
-        <div style="display:none;"><input type="text" id="honeypot" name="honeypot"></div>
-        <button type="submit" id="submit-btn">Записаться</button>
-    </form>
-    <div id="status"></div>
-</div>
-
-<div id="orderModal" class="modal-overlay">
-    <div class="modal">
-        <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
-        <h3 id="modal-title"></h3>
-        <p id="modal-text"></p>
-        <div id="modal-extra" style="margin: 15px 0;"></div>
-        <button id="modal-btn" onclick="closeModal()" style="background:#007bff; color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-weight:600;">Понятно</button>
     </div>
-</div>
 
-<script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxQ0EXKPEFODoeTmOL0_USqA_orSmhwP6jTtwOymAbYVuLSC3rMs0ODoM_Eyg1vDt3shQ/exec';
-    const API_TOKEN = "5093f898045bde0c376afa1c9a96e738c4549be6";
-    
-    const form = document.getElementById('order-form');
-    const status = document.getElementById('status');
-    const btn = document.getElementById('submit-btn');
-    const dateInput = document.getElementById('order-date');
-    const hourSelect = document.getElementById('hours');
-    const addressInput = document.getElementById('address');
-    const suggestionsBox = document.getElementById('address-suggestions');
-    const pageLoadTime = Date.now();
-
-    // 1. Управление датами и временем
-    const getLocalDateStr = () => new Date().toISOString().split('T')[0];
-
-    async function updateAvailableHours() {
-    const selectedDate = dateInput.value;
-    if (!selectedDate) return;
-
-    // --- Анимация загрузки ---
-    let dots = "";
-    const loadingInterval = setInterval(() => {
-        dots = dots.length >= 3 ? "" : dots + ".";
-        hourSelect.innerHTML = `<option value="">Загрузка${dots}</option>`;
-    }, 400); 
-    // -------------------------
-
-    try {
-        const response = await fetch(`${scriptURL}?t=${Date.now()}`);
-        const bookedSlots = await response.json();
+    <div id="extra-fields-date" class="form-grid" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="input-group">
+            <label>Желаемая дата</label>
+            <input type="date" id="order-date" name="date">
+        </div>
         
-        clearInterval(loadingInterval);
-        hourSelect.innerHTML = '<option value="">Час</option>';
+        <div class="input-group">
+            <label for="hours">Время</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="hours" name="hour" style="flex: 1;"><option value="">Час</option></select>
+                <span style="font-weight:bold; color:var(--text-light);">:</span>
+                <select id="minutes" name="minute" style="flex: 1;">
+                    <option value="">Мин</option>
+                    <option value="00">00</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-        // 1. ПРОВЕРКА НА ПОЛНУЮ БЛОКИРОВКУ ДНЯ
-        const isFullDayBlocked = bookedSlots.some(slot => slot.date === selectedDate && slot.time === "Весь день");
-        
-        if (isFullDayBlocked) {
-            // ФУНКЦИЯ ПОИСКА БЛИЖАЙШИХ СВОБОДНЫХ ДАТ
-            // Превращаем "2026-03-27" в "27 марта" для текста ошибки
-            const formattedSelectedDate = new Date(selectedDate).toLocaleDateString('ru-RU', { 
-                day: 'numeric', 
-                month: 'long' 
-            });
-            
-            const findNearby = (direction) => {
-            let current = new Date(selectedDate);
-            for (let i = 1; i <= 10; i++) {
-                current.setDate(current.getDate() + direction);
-                let dateStr = current.toISOString().split('T')[0];
-                let isBlocked = bookedSlots.some(s => s.date === dateStr && s.time === "Весь день");
-                let today = new Date();
-                today.setHours(0,0,0,0);
-                
-                if (!isBlocked && current >= today) {
-                    return {
-                        raw: dateStr, // "2026-03-28"
-                        nice: current.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) // "28 марта"
-                    };
-                }
-            }
-            return null;
-        };
+    <div class="input-group full-width">
+        <label>Прикрепите фото мебели для оценки работы</label>
+        <div class="file-upload-wrapper">
+            <input type="file" id="image" accept="image/*" multiple>
 
-        const prev = findNearby(-1);
-        const next = findNearby(1);
-        
-        let advice = "<b>Ближайшие свободные даты:</b><br><div style='margin-top:10px;'>";
-        
-        // Создаем кликабельные кнопки прямо в строке
-        if (prev) {
-            advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${prev.raw}')">⬅️ ${prev.nice}</button><br>`;
-        }
-        if (next) {
-            advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${next.raw}')">➡️ ${next.nice}</button>`;
-        }
-        advice += "</div>";
+            <div class="file-upload-label" id="file-label">
+                <span class="file-icon">📸</span>
+                <span>Нажмите, чтобы выбрать или перетащите сюда до 3-х фото</span>
+                <span style="font-size: 12px; font-weight: 400; opacity: 0.8;">(JPEG, PNG)</span>
+            </div>
+        </div>
+    </div>
 
-            // Вызываем наше красивое модальное окно вместо alert
-            showModal(
-                "День занят", 
-                `К сожалению, на <b>${formattedSelectedDate}</b> запись невозможна.`, 
-                "error", 
-                advice
-            );
+    <div id="extra-fields-comment" class="input-group full-width">
+        <label for="message">Комментарий</label>
+        <textarea id="message" name="message" rows="3" placeholder="Укажите тип пятен, материал обивки. или задайте вопрос мастеру.."></textarea>
+    </div>
 
-            dateInput.value = ""; // Сбрасываем дату
-            hourSelect.innerHTML = '<option value="">Выберите дату...</option>';
-            return;
-        }
+    <div class="input-group full-width">
+        <div class="consent-block">
+            <input type="checkbox" id="check" checked required>
+            <label for="check">
+                Соглашаюсь с <a href="#" onclick="showPrivacy(); return false;">политикой конфиденциальности</a>
+            </label>
+        </div>
+    </div>
 
-        // 2. ОТРИСОВКА ДОСТУПНЫХ ЧАСОВ (если день не заблокирован)
-        const now = new Date();
-        const todayStr = getLocalDateStr();
-        const cutoffHour = now.getHours() + 2;
+    <div class="full-width">
+        <div style="display:none;"><input type="text" id="honeypot" name="honeypot"></div>
+        <button type="submit" id="submit-btn" class="btn" style="padding: 22px; font-size: 18px; border-radius: 16px; width: 100%;">
+            Рассчитать стоимость
+        </button>
+        <div id="status" style="text-align: center; margin-top: 15px; font-weight: 600; min-height: 24px;"></div>
+    </div>
+</form>
+            </div>
+        </div>
+    </section>
 
-        for (let i = 8; i <= 20; i++) {
-            let hStr = i.toString().padStart(2, '0');
-            
-            // Проверка: не прошло ли время (для сегодняшнего дня)
-            if (selectedDate > todayStr || i >= cutoffHour) {
-                
-                // Проверка занятости конкретного слота (+-1 час от существующих заказов)
-                const isBooked = bookedSlots.some(slot => {
-                    if (slot.date !== selectedDate) return false;
-                    const bookedHour = parseInt(slot.time.split(':')[0]);
-                    return (i >= bookedHour - 1 && i <= bookedHour + 1);
-                });
+    <!-- Модальное окно статуса -->
+    <div id="orderModal" class="modal-overlay">
+        <div class="modal">
+            <div id="modal-icon" style="font-size: 64px; margin-bottom: 20px;"></div>
+            <h3 id="modal-title" style="font-size: 28px; margin-bottom: 12px; font-weight: 800;"></h3>
+            <p id="modal-text" style="color: var(--text-light); margin-bottom: 24px; font-size: 16px;"></p>
+            <div id="displayOrderNum" class="order-num" style="display:none; background: var(--bg-body); padding: 20px; border-radius: 20px; color: var(--primary); margin: 20px 0;"></div>
+            <div id="modal-extra" style="margin: 20px 0;"></div>
+            <button id="modal-btn" class="btn" style="width: 100%;">Отлично</button>
+        </div>
+    </div>
 
-                let opt = document.createElement('option');
-                opt.value = hStr;
-                opt.textContent = isBooked ? `${hStr} (занято)` : `${hStr}`;
-                
-                if (isBooked) { 
-                    opt.disabled = true; 
-                    opt.style.color = "#ccc"; 
-                }
-                hourSelect.appendChild(opt);
-            }
-        }
+    <!-- ПОДВАЛ -->
+    <footer>
+        <div class="container footer-info">
+            <h3>Ваш мастер чистоты</h3>
+            <p>📍 Тюмень, ул. Монтажников, 36 (р-н Восточный)</p>
+            <p>🚗 Бесплатный выезд во все районы города и пригород</p>
+            <p>🕒 График работы: Ежедневно, с 8:00 до 22:00</p>
+            <a href="https://www.avito.ru/tyumen/predlozheniya_uslug/himchistka_mebeli_divana_matrasa_kresla_stulev_3799926749" target="_blank" class="avito-link">
+                <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path fill="#04E061" d="M 8.305 26.167 a 8.305 8.305 0 1 0 0 -16.61 a 8.305 8.305 0 0 0 0 16.61 Z"></path><path fill="#FF4053" d="M 22.708 25.12 a 5.017 5.017 0 1 0 0 -10.035 a 5.017 5.017 0 0 0 0 10.035 Z"></path><path fill="#965EEB" d="M 9.892 8.48 a 3.106 3.106 0 1 0 0 -6.211 a 3.106 3.106 0 0 0 0 6.211 Z"></path><path fill="#0AF" d="M 20.757 14.004 a 6.752 6.752 0 1 0 0 -13.504 a 6.752 6.752 0 0 0 0 13.504 Z"></path></svg>
+                Мой профиль на Авито
+            </a>
+        </div>
+    </footer>
 
-        // Если после фильтрации список часов пуст (например, вечер текущего дня)
-        if (hourSelect.options.length <= 1) {
-            hourSelect.innerHTML = '<option value="">На сегодня записей нет</option>';
-        }
-
-    } catch (e) {
-        clearInterval(loadingInterval);
-        hourSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-        console.error("Ошибка синхронизации:", e);
-    }
-}
-
-    // Управление модальным окном
-    function showModal(title, text, type = 'success', extraHtml = '', orderNum = null) {
-    const modal = document.getElementById('orderModal');
-    const titleEl = document.getElementById('modal-title');
-    const textEl = document.getElementById('modal-text');
-    const iconEl = document.getElementById('modal-icon');
-    const extraEl = document.getElementById('modal-extra');
-    const btn = document.getElementById('modal-btn');
-    const orderNumDisplay = document.getElementById('displayOrderNum');
-
-    // Заполняем данные
-    titleEl.textContent = title;
-    textEl.innerHTML = text; // Используем innerHTML на случай, если в тексте будут <br>
-    extraEl.innerHTML = extraHtml;
-    
-    if (type === 'error') {
-        iconEl.textContent = '📅';
-        titleEl.style.color = '#e74c3c';
-        if (orderNumDisplay) orderNumDisplay.style.display = 'none'; // Скрываем блок номера, если это ошибка
-        btn.onclick = () => { modal.style.display = 'none'; };
-    } else {
-        iconEl.textContent = '✅';
-        titleEl.style.color = '#2ecc71';
-        
-        // Если передан номер заказа — показываем его в твоем красивом поле
-        if (orderNum && orderNumDisplay) {
-            orderNumDisplay.textContent = orderNum;
-            orderNumDisplay.style.display = 'block';
-        }
-        
-        // Сбрасываем форму только при успехе
-        document.getElementById('order-form').reset();
-        
-        // Кнопка "Отлично" при успехе перезагружает страницу для чистоты
-        btn.onclick = () => { location.reload(); };
-    }
-    
-    modal.style.display = 'flex';
-}
-
-    function closeModal() {
-        document.getElementById('orderModal').style.display = 'none';
-    }
-
-    // 2. DaData Подсказки
-    addressInput.addEventListener('input', async function() {
-        if (this.value.length < 3) { suggestionsBox.style.display = 'none'; return; }
-        try {
-            const resp = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", {
-                method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json", "Authorization": "Token " + API_TOKEN },
-                body: JSON.stringify({ query: this.value, count: 5, from_bound: {value: "street"}, to_bound: {value: "house"}, locations: [{"city": "Тюмень"}], restrict_value: true })
-            });
-            const res = await resp.json();
-            const filtered = res.suggestions.filter(s => s.data.street);
-            
-            suggestionsBox.innerHTML = '';
-            filtered.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'suggestion-item';
-                div.textContent = s.value;
-                div.onclick = () => {
-                    addressInput.value = s.value;
-                    if (s.data.house) {
-                        suggestionsBox.style.display = 'none';
-                        addressInput.style.borderColor = "#28a745";
-                    } else {
-                        addressInput.value += ", ";
-                        addressInput.focus();
-                        addressInput.dispatchEvent(new Event('input'));
-                    }
-                };
-                suggestionsBox.appendChild(div);
-            });
-            suggestionsBox.style.display = filtered.length ? 'block' : 'none';
-        } catch (e) { console.log(e); }
-    });
-
-    // 3. Сжатие фото (Возвращаем твою логику)
-    const getFilesData = async (files) => {
-        const promises = Array.from(files).slice(0, 3).map(file => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let w = img.width, h = img.height;
-                        const MAX = 1200;
-                        if (w > h && w > MAX) { h *= MAX/w; w = MAX; }
-                        else if (h > MAX) { w *= MAX/h; h = MAX; }
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        resolve({ data: canvas.toDataURL('image/jpeg', 0.7).split(',')[1], name: file.name });
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-        return Promise.all(promises);
-    };
-
-    // 4. Отправка формы
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Валидация адреса
-        if (!/[а-яА-ЯёЁa-zA-Z]/.test(addressInput.value) || !/\d/.test(addressInput.value)) {
-            alert("Пожалуйста, выберите полный адрес из списка или введите улицу и номер дома!");
-            addressInput.focus();
-            return;
-        }
-
-        if (document.getElementById('honeypot').value || (Date.now() - pageLoadTime) < 4000) return;
-
-        btn.disabled = true;
-        status.style.color = "blue";
-        status.textContent = "⏳ Отправка заказа...";
-
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-        if (data.flat) data.address += `, кв/оф: ${data.flat}`;
-        data.time = `${data.hour}:${data.minute}`;
-
-        const fileInput = document.getElementById('image');
-        if (fileInput.files.length > 0) {
-            data.filesJSON = JSON.stringify(await getFilesData(fileInput.files));
-        }
-
-        try {
-            const resp = await fetch(scriptURL, { method: 'POST', body: new URLSearchParams(data) });
-            const res = await resp.json();
-            if (res.result === 'success') {
-                // Передаем заголовок, текст, тип "success", пустой доп.контент и сам НОМЕР заказа
-                showModal(
-                    "Заказ принят!", 
-                    "Мастер свяжется с вами в ближайшее время.", 
-                    "success", 
-                    "", 
-                    res.orderNumber
-                );
-            }
-        } catch (err) {
-            status.style.color = "red";
-            status.textContent = "❌ Ошибка сети. Попробуйте еще раз.";
-            btn.disabled = false;
-        }
-    });
-
-    // Маска телефона
-    document.getElementById('phone').addEventListener('input', function(e) {
-        let val = e.target.value.replace(/\D/g, '');
-        if (val.startsWith('7')) val = '8' + val.substring(1);
-        if (val && !val.startsWith('8')) val = '8' + val;
-        let res = '8';
-        if (val.length > 1) res += ' (' + val.substring(1, 4);
-        if (val.length > 4) res += ') ' + val.substring(4, 7);
-        if (val.length > 7) res += '-' + val.substring(7, 9);
-        if (val.length > 9) res += '-' + val.substring(9, 11);
-        e.target.value = res.substring(0, 18);
-    });
-
-
-    // Функция для выбора даты прямо из модального окна
-    function selectSuggestedDate(dateIso) {
-        const dateInput = document.getElementById('order-date');
-        dateInput.value = dateIso; // Подставляем дату (например, 2026-03-28)
-        closeModal(); // Закрываем окно
-        
-        // Инициируем обновление часов для новой даты
-        // Мы вызываем функцию вручную, так как программное изменение .value не всегда триггерит 'change'
-        updateAvailableHours(); 
-    }
-
-    // Старт
-    dateInput.min = getLocalDateStr();
-    dateInput.value = getLocalDateStr();
-    dateInput.addEventListener('change', updateAvailableHours);
-    updateAvailableHours();
-    document.addEventListener('click', (e) => { if (e.target !== addressInput) suggestionsBox.style.display = 'none'; });
-</script>
+    <script src="./script.js"></script>
 </body>
 </html>
