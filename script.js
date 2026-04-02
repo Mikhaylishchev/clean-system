@@ -172,8 +172,20 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         });
 
         /** =================== ЛОГИКА ФОРМЫ ===================== **/
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby85FsnFDycudClq_7UpB5Ommw0QoxBOS9vwW7cN_mC40spcwzZ1EIIofP3UwBSxaD7Fg/exec';
-        const API_TOKEN = "5093f898045bde0c376afa1c9a96e738c4549be6";
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyWUbzKxrh9pf4rol78ZxXVH3pHvx-1iI-OAbFPbptwMXW5oWRecHUed43GLsEwRmUu/exec';
+        // ================================================================
+        // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
+        // Если подсказки адреса перестали работать:
+        // 1. Проверь лимиты в кабинете dadata.ru
+        // 2. Если ключ украли — обнови его в кабинете, скопируй новый 
+        //    и зашифруй через любой сервис "Base64 Encode"
+        // ================================================================
+
+        const _encodedToken = "NTA5M2Y4OTgwNDViZGUwYzM3NmFmYTFjOWE5NmU3MzhjNDU0OWJlNg==";
+
+        const API_TOKEN = atob(_encodedToken); 
+
+        // ================================================================
         
         const form = document.getElementById('order-form');
         const status = document.getElementById('status');
@@ -383,6 +395,9 @@ function renderPreviews() {
             updateAvailableHours(); 
         }
 
+        document.querySelector("#modal-btn").onclick = () => {
+            closeModal()
+        }
         // Закрытие по клавише Esc
         document.addEventListener('keydown', function(e) {
             if (e.key === "Escape") {
@@ -451,6 +466,7 @@ function renderPreviews() {
     const typeEl = document.getElementById('form_type');
     const addressField = document.getElementById('address');
     const currentMode = typeEl ? typeEl.value : 'LIGHT';
+    const isFull = (currentMode === 'FULL');
 
     // 1. Валидация фото (LIGHT)
     if (currentMode === 'LIGHT' && selectedFiles.length === 0) {
@@ -481,9 +497,12 @@ function renderPreviews() {
     status.textContent = "⏳ Соединение с сервером...";
 
     try {
-        const formData = new FormData(form);
+        const formData = new FormData(currentForm);
         const data = Object.fromEntries(formData.entries());
-        data.session_id = currentSessionId; // Используем твой ID сессии
+
+        // Критически важные ID
+        data.session_id = currentSessionId; // Берем из глобальной переменной
+        data.form_type = currentMode;
 
         if (currentMode === 'LIGHT') {
             data.address = "Расчёт стоимости работы";
@@ -507,58 +526,57 @@ function renderPreviews() {
         const bodyData = new URLSearchParams();
         for (const key in data) { bodyData.append(key, data[key]); }
 
-        // 1. ОТПРАВЛЯЕМ (no-cors самый быстрый, он не ждет проверки от Google)
-        // 1. ОТПРАВЛЯЕМ (no-cors)
+        // ОТПРАВЛЯЕМ (no-cors)
         fetch(scriptURL, { 
             method: 'POST', 
             body: bodyData,
             mode: 'no-cors'
         });
 
-        // 2. ПАУЗА И ПОЛУЧЕНИЕ НОМЕРА
+        // 5. ПАУЗА И ПОЛУЧЕНИЕ НОМЕРА
         status.textContent = "🔍 Присваиваем номер заявке...";
         
-        // Ждем чуть дольше (3 секунды), чтобы Google точно записал данные
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Ждем 3.5 секунды, чтобы Google успел "прожевать" POST-запрос
+        await new Promise(resolve => setTimeout(resolve, 3500));
 
-        // Первая попытка получить номер
+        // Первая попытка синхронизации
         await checkActiveOrder(); 
         let finalOrderNumber = localStorage.getItem('cached_order');
 
-        // Если с первого раза не нашли, ждем еще 2 секунды и пробуем второй раз
+        // Если с первого раза не нашли (Google бывает задумчив)
         if (!finalOrderNumber) {
             status.textContent = "⏳ Почти готово...";
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 2500));
             await checkActiveOrder();
             finalOrderNumber = localStorage.getItem('cached_order');
         }
 
-        // Если всё равно пусто — пишем "принята", если нашли — выводим номер
+        // Результирующий номер для показа
         const orderToDisplay = finalOrderNumber || "принята";
 
-        // 3. ПОКАЗЫВАЕМ МОДАЛКУ
+        // 6. ПОКАЗЫВАЕМ МОДАЛКУ (ОДИН РАЗ!)
         showModal(
             "Заявка отправлена!", 
-            "Мастер свяжется с вами в ближайшее время.", 
+            isFull ? "Мы свяжемся с вами для подтверждения времени." : "Мастер рассчитает стоимость, и она появится в этом окне.", 
             "success", 
             "", 
             orderToDisplay
         );
 
-        // 5. ОЧИСТКА (теперь она здесь и не сломает код)
-        if (currentMode !== 'FULL') {
-            e.target.reset(); // Очищаем форму, которая вызвала событие
+        // 7. ОЧИСТКА
+        if (!isFull) {
+            currentForm.reset(); 
             selectedFiles = [];
             if (typeof renderPreviews === 'function') renderPreviews();
             
-            // Чистим черновики
+            // Чистим черновики, так как заявка уже ушла
             localStorage.removeItem('draft_name');
             localStorage.removeItem('draft_phone');
         }
 
     } catch (err) {
         console.error("Ошибка в submit:", err);
-        showModal("Заявка принята!", "Мастер уже получил уведомление.", "success", "", "принята");
+        showModal("Заявка принята!", "Мастер уже получил уведомление.", "success", "", "в обработке");
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalBtnHTML;
@@ -619,7 +637,17 @@ function renderPreviews() {
 
 
 // Запускаем проверку при загрузке страницы
-checkActiveOrder();
+document.addEventListener('DOMContentLoaded', () => {
+    // Просто запускаем проверку при загрузке. 
+    // Если заказ есть — checkActiveOrder вызовет renderPlaceholder.
+    if (typeof checkActiveOrder === 'function') {
+        checkActiveOrder();
+    }
+    
+    // Очистим старые флаги на всякий случай, они нам больше не нужны
+    sessionStorage.removeItem('force_show_form');
+    sessionStorage.removeItem('target_mode');
+});
 
         dateInput.min = getLocalDateStr(); dateInput.value = getLocalDateStr();
         dateInput.addEventListener('change', updateAvailableHours); updateAvailableHours();
@@ -650,73 +678,90 @@ checkActiveOrder();
 }
 
 
-// Переключение режимов формы
 function switchForm(mode) {
-    const typeInput = document.getElementById('form_type');
-    if (typeInput) typeInput.value = mode;
-
-    const isFull = mode === 'FULL';
+    const currentMode = mode.toUpperCase();
+    const overlay = document.getElementById('status-overlay');
+    const formFields = document.getElementById('form-fields-wrapper');
     
-    // Элементы, которые скрываем/показываем
-    const fieldsToToggle =[
+    const activeOrder = localStorage.getItem('active_order_id');
+    const activeStatus = localStorage.getItem('active_order_status'); // Читаем статус
+
+    // 1. ЛОГИКА "УМНОГО" ПЕРЕКРЫТИЯ
+    let shouldShowOverlay = false;
+
+    if (currentMode === 'LIGHT' && activeOrder) {
+        // В краткой форме показываем заглушку всегда, если есть заказ
+        shouldShowOverlay = true;
+    } 
+    else if (currentMode === 'FULL' && activeOrder && activeStatus === 'Подтверждён') {
+        // В полной форме показываем заглушку ТОЛЬКО если статус "Подтверждён"
+        shouldShowOverlay = true;
+    }
+
+    // 2. ПРИМЕНЯЕМ ВИДИМОСТЬ
+    if (shouldShowOverlay) {
+        if (overlay) overlay.style.display = 'block';
+        if (formFields) formFields.style.display = 'none';
+        checkActiveOrder(); // Обновляем данные с сервера
+        updateTabVisuals(currentMode);
+        return; // Выходим, поля не нужны
+    } else {
+        // Показываем поля формы
+        if (overlay) overlay.style.display = 'none';
+        if (formFields) formFields.style.display = 'block';
+    }
+
+    // 3. ОСТАЛЬНОЙ КОД (updateTabVisuals, fieldsToToggle и т.д.)
+    updateTabVisuals(currentMode);
+
+    // 4. УПРАВЛЕНИЕ ПОЛЯМИ (Показываем/скрываем части формы внутри formFields)
+    // Этот блок работает только если formFields.style.display = 'block'
+    const isFull = (currentMode === 'FULL');
+    const fieldsToToggle = [
         document.getElementById('extra-fields-address'),
         document.getElementById('extra-fields-date'),
         document.getElementById('extra-fields-comment'),
         document.getElementById('extra-fields-type-of-furniture'),
     ];
-    
-    const submitBtn = document.getElementById('submit-btn');
-    const tabLight = document.getElementById('tab-light');
-    const tabFull = document.getElementById('tab-full');
-    const formTitle = document.getElementById('form-title'); 
-    
-    if (isFull) {
-        formTitle.innerText = 'Оформить заявку';
-        tabFull.classList.add('active');
-        tabLight.classList.remove('active');
-        submitBtn.textContent = 'Оформить заявку';
-    } else {
-        // formTitle.innerText = 'Рассчитать стоимость';
-        tabLight.classList.add('active');
-        tabFull.classList.remove('active');
-        submitBtn.textContent = 'Рассчитать стоимость';
-    }
 
-    // 2. Скрываем/Показываем блоки и ПРАВИЛЬНО ОТКЛЮЧАЕМ ПОЛЯ
     fieldsToToggle.forEach(el => {
-        if (el) {
-            if (isFull) {
-                el.style.display = 'grid'; // Показываем
-                // Включаем поля обратно, чтобы они отправлялись и проверялись
-                el.querySelectorAll('input, select, textarea').forEach(i => {
-                    i.disabled = false;
-                    if (i.id === 'address' || i.id === 'order-date' || i.name === 'hour') {
-                        i.required = true;
-                    }
-                });
-            } else {
-                el.style.display = 'none'; // Скрываем
-                // Полностью отключаем поля, чтобы браузер не требовал их заполнения
-                el.querySelectorAll('input, select, textarea').forEach(i => {
-                    i.disabled = true;
-                    i.required = false;
-                });
-            }
+        if (!el) return;
+        if (isFull) {
+            el.style.display = 'grid';
+            el.querySelectorAll('input, select, textarea').forEach(i => {
+                i.disabled = false;
+                if (['address', 'order-date'].includes(i.id)) i.required = true;
+            });
+        } else {
+            el.style.display = 'none';
+            el.querySelectorAll('input, select, textarea').forEach(i => {
+                i.disabled = true;
+                i.required = false;
+            });
         }
     });
-    
-    // 3. Автоподстановка данных из памяти
+
+    // Автозаполнение
     if (isFull) {
-        const savedName = localStorage.getItem('draft_name');
-        const savedPhone = localStorage.getItem('draft_phone');
-        if (savedName && !document.getElementById('name').value) {
-            document.getElementById('name').value = savedName;
-        }
-        if (savedPhone && !document.getElementById('phone').value) {
-            document.getElementById('phone').value = savedPhone;
-        }
-        checkActiveOrder(); 
+        const n = document.getElementById('name');
+        const p = document.getElementById('phone');
+        if (n) n.value = localStorage.getItem('draft_name') || n.value;
+        if (p) p.value = localStorage.getItem('draft_phone') || p.value;
     }
+}
+
+function updateTabVisuals(mode) {
+    const isFull = (mode === 'FULL');
+    const tabLight = document.getElementById('tab-light');
+    const tabFull = document.getElementById('tab-full');
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (tabLight) tabLight.classList.toggle('active', !isFull);
+    if (tabFull) tabFull.classList.toggle('active', isFull);
+    
+    if (formTitle) formTitle.innerText = isFull ? 'Оформить заявку' : 'Оставить заявку';
+    if (submitBtn) submitBtn.textContent = isFull ? 'Записаться на чистку' : 'Рассчитать стоимость';
 }
 
 function goToForm(mode) {
@@ -744,55 +789,136 @@ function goToForm(mode) {
 
 // ================= ПРОВЕРКА АКТИВНОГО ЗАКАЗА (ГИБРИДНАЯ) =================
 async function checkActiveOrder() {
-    // 1. МГНОВЕННАЯ ОТРИСОВКА ИЗ КЭША (Без моргания)
+    // Используем правильный ID, который задан в начале файла
+    const sessionId = localStorage.getItem('service_session_id'); 
     const cachedOrder = localStorage.getItem('cached_order');
-    let cachedStatus = localStorage.getItem('cached_status') || 'Новый';
-    
+    const cachedStatus = localStorage.getItem('cached_status') || 'Новый';
+
+    // ОПТИМИЗАЦИЯ: Если человек еще ничего не отправлял, не мучаем сервер
+    if (!sessionId && !cachedOrder) {
+        console.log("Новый посетитель, проверка статуса пропущена.");
+        return;
+    }
+
+    // 1. МГНОВЕННЫЙ ПОКАЗ (из памяти)
     if (cachedOrder) {
         renderPlaceholder(cachedOrder, cachedStatus);
     }
 
     try {
-        // 2. ФОНОВАЯ СИНХРОНИЗАЦИЯ С ГУГЛ ТАБЛИЦЕЙ
-        const response = await fetch(`${scriptURL}?action=check_status&session_id=${currentSessionId}&t=${Date.now()}`);
+        // 2. ФОНОВАЯ СИНХРОНИЗАЦИЯ
+        // Важно: используем sessionId, который достали выше
+        const response = await fetch(`${scriptURL}?action=check_status&session_id=${sessionId}&t=${Date.now()}`);
         const data = await response.json();
         
-        if (data.hasActiveOrder) {
-            // Если заказ активен, обновляем статус в памяти и перерисовываем тихонько (вдруг статус сменился на "Подтверждён")
+        console.log("Данные из таблицы:", data);
+
+        if (data && data.hasActiveOrder) {
+            // Сохраняем актуальное состояние
+            localStorage.setItem('active_order_id', data.orderNumber);
+            localStorage.setItem('active_order_status', data.status); 
             localStorage.setItem('cached_order', data.orderNumber);
             localStorage.setItem('cached_status', data.status);
-            renderPlaceholder(data.orderNumber, data.status);
+            
+            // Перерисовываем с ценой
+            renderPlaceholder(data.orderNumber, data.status, data.price);
         } else {
-            // Если Гугл сказал, что активных заказов НЕТ (Выполнен/Отменен/Нет вообще)
-            // Но у нас висит кэш -> значит заказ завершили! Удаляем кэш и возвращаем форму.
+            // Если заказа больше нет (выполнен/отменен в таблице)
             if (cachedOrder) {
+                localStorage.removeItem('active_order_id');
                 localStorage.removeItem('cached_order');
                 localStorage.removeItem('cached_status');
-                location.reload(); // Перезагружаем страничку, чтобы вернуть пустую форму
+                location.reload(); 
             }
         }
     } catch (e) {
-        console.log("Проверка в фоне не удалась, показываем кэш.", e);
+        console.log("Ошибка связи с таблицей:", e);
     }
 }
 
 // Мини-функция, чтобы не дублировать HTML-код заглушки
-function renderPlaceholder(orderNum, statusText) {
-    const formContainer = document.querySelector('.form-container');
-    if (!formContainer) return;
+function renderPlaceholder(orderNum, statusText, price = "") {
+    const overlay = document.getElementById('status-overlay');
+    const formFields = document.getElementById('form-fields-wrapper');
     
-    formContainer.innerHTML = `
-        <div style="text-align: center; padding: 40px 10px;">
-            <div style="font-size: 64px; margin-bottom: 20px;">⏱️</div>
-            <h2 style="margin-bottom: 15px; font-size: 28px; color: var(--text-dark);">Заявка №${orderNum} в работе</h2>
-            <p style="color: var(--text-light); margin-bottom: 20px; font-size: 16px;">
-                Мы уже получили вашу заявку (статус: <b style="color: var(--primary);">${statusText}</b>).<br> 
-                Мастер свяжется с вами в ближайшее время для уточнения деталей.
-            </p>
-            <div style="background: var(--bg-body); padding: 15px; border-radius: 12px; display: inline-block;">
-                <p style="font-size: 14px; margin: 0; color: var(--text-light);">Если вы хотите добавить мебель к заказу или изменить время, просто сообщите об этом мастеру по телефону.</p>
+    if (!overlay || !formFields) return;
+
+    // Защита: если номер заказа пришел как "принята" или пустой, берем из кэша
+    const finalNum = (orderNum && orderNum !== "принята") ? orderNum : (localStorage.getItem('cached_order') || "...");
+
+    let priceHtml = "";
+    if (price && price.toString().trim() !== "") {
+        priceHtml = `
+            <div style="background: rgba(4, 224, 97, 0.1); border: 2px dashed #04e061; padding: 15px; border-radius: 12px; margin: 15px 0;">
+                <p style="margin:0; font-size: 14px; color: #666;">Стоимость работы по Вашей заявке:</p>
+                <p style="margin:0; font-size: 26px; font-weight: 800; color: #04e061;">${price} ₽</p>
             </div>
+        `;
+    }
+
+    overlay.innerHTML = `
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 40px; margin-bottom: 10px;">⏱️</div>
+            <h2 style="font-size: 22px; margin-bottom: 5px;">Заявка №${finalNum}</h2>
+            <p style="color: #666; font-size: 14px;">Статус: <b style="color: #04e061;">${statusText}</b></p>
+            
+            ${priceHtml} 
+
+            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                ${price ? `
+                <button onclick="switchForm('FULL')" 
+                        style="width: 100%; max-width: 250px; background: #04e061; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    Оформить заказ полностью
+                </button>
+                ` : ''}
+
+                <button onclick="cancelOrder('${finalNum}')" 
+                        style="width: 100%; max-width: 250px; background: #f4f4f4; color: #666; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                    Отменить заявку
+                </button>
+            </div>
+            
+            <p style="font-size: 12px; color: #999; margin-top: 15px;">
+                ${price ? 'Мастер оценил работу. Выберите время визита.' : 'Ожидайте, мастер рассчитывает стоимость...'}
+            </p>
         </div>
     `;
+
+    overlay.style.display = 'block';
+    formFields.style.display = 'none';
 }
-// =========================================================================
+
+
+async function cancelOrder(orderNum) {
+    if (!confirm('Вы уверены, что хотите отменить заявку?')) return;
+
+    try {
+        // 1. Сначала уведомляем сервер (Гугл Таблицу)
+        // Добавляем t=Date.now() чтобы браузер не выдал старый ответ из кэша
+        const response = await fetch(`${scriptURL}?action=cancel_order&order_id=${orderNum}&t=${Date.now()}`);
+        
+        // 2. ПОЛНАЯ ОЧИСТКА всех следов заказа в браузере
+        const keysToRemove = [
+            'active_order_id', 
+            'active_order_status', 
+            'cached_order', 
+            'cached_status',
+            'session_id',         // Удаляем ID сессии, чтобы пользователь стал "новым"
+            'service_session_id'  // И этот тоже, если используешь такое имя
+        ];
+        
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        alert('Заявка успешно отменена.');
+        
+        // 3. Жесткая перезагрузка, чтобы сбросить все состояния скрипта
+        window.location.reload(); 
+
+    } catch (e) {
+        console.error("Ошибка при отмене:", e);
+        // Даже если сервер упал, лучше почистить локально, чтобы юзер не застрял
+        localStorage.removeItem('cached_order');
+        localStorage.removeItem('cached_status');
+        location.reload();
+    }
+}

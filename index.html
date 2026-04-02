@@ -96,19 +96,22 @@
     <!-- СЕКЦИЯ ДЛЯ ФОРМЫ -->
     <section class="form-section reveal delay-1" id="form">
         <div class="container">
-            <div class="form-container">
-                
-                <div class="form-tabs">
-                    <button type="button" id="tab-light" class="tab-btn active" onclick="switchForm('LIGHT')">
-                        Узнать стоимость работ
-                    </button>
-                    <button type="button" id="tab-full" class="tab-btn" onclick="switchForm('FULL')">
-                        Оформить заявку
-                    </button>
-                </div>
+    <div class="form-container">
+    <div class="form-tabs">
+        <button type="button" id="tab-light" class="tab-btn active" onclick="switchForm('LIGHT')">
+            Узнать стоимость работ
+        </button>
+        <button type="button" id="tab-full" class="tab-btn" onclick="switchForm('FULL')">
+            Оформить заявку
+        </button>
+    </div>
 
-                <h2 id="form-title">Оставить заявку</h2>
-                <p>Заполните форму и приложите фото. <br>После оценки я назову точную цену стоимость работы.</p>
+    <div id="form-content">
+        <div id="status-overlay" style="display:none;"></div>
+        <div id="form-fields-wrapper">
+        <h2 id="form-title">Оставить заявку</h2>
+
+        <p>Заполните форму и приложите фото. <br>После оценки я назову точную цену стоимость работы.</p>
                 
                 <form id="order-form" class="form-grid">
     <input type="hidden" id="form_type" name="form_type" value="LIGHT">
@@ -206,6 +209,7 @@
         <div id="status" style="text-align: center; margin-top: 15px; font-weight: 600; min-height: 24px;"></div>
     </div>
 </form>
+            </div>
             </div>
         </div>
     </section>
