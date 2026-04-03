@@ -8,6 +8,7 @@
             --text-light: #64748b;
             --gold: #f5b301;
             --accent: #ef4444;
+            --light-blue: #e2effb;
             /* --green: #067000; */
             --radius: 24px;
             --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -240,7 +241,7 @@
         .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-soft); }
         .step-card::before { 
             content: attr(data-num); position: absolute; top: -15px; right: -10px; 
-            font-size: 90px; font-weight: 800; color: #e2effb; z-index: -1; line-height: 1; transition: var(--transition); 
+            font-size: 90px; font-weight: 800; color: var(--light-blue); z-index: -1; line-height: 1; transition: var(--transition); 
         }
         .step-card:hover::before { color: var(--primary); transform: scale(1.05); }
         .step-card h4 { font-size: 18px; margin-bottom: 12px; color: var(--primary); }

@@ -849,9 +849,9 @@ function renderPlaceholder(orderNum, statusText, price = "") {
     let priceHtml = "";
     if (price && price.toString().trim() !== "") {
         priceHtml = `
-            <div style="background: rgba(4, 224, 97, 0.1); border: 2px dashed #04e061; padding: 15px; border-radius: 12px; margin: 15px 0;">
+            <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; background: var(--light-blue); border: 2px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0;">
                 <p style="margin:0; font-size: 14px; color: #666;">Стоимость работы по Вашей заявке:</p>
-                <p style="margin:0; font-size: 26px; font-weight: 800; color: #04e061;">${price} ₽</p>
+                <p style="margin:0; font-size: 26px; font-weight: 800; color: var(--primary);">${price} ₽</p>
             </div>
         `;
     }
@@ -860,26 +860,26 @@ function renderPlaceholder(orderNum, statusText, price = "") {
         <div style="text-align: center; padding: 20px 0;">
             <div style="font-size: 40px; margin-bottom: 10px;">⏱️</div>
             <h2 style="font-size: 22px; margin-bottom: 5px;">Заявка №${finalNum}</h2>
-            <p style="color: #666; font-size: 14px;">Статус: <b style="color: #04e061;">${statusText}</b></p>
+            <p style="color: #666; font-size: 14px;">Статус: <b style="color: var(--primary);">${statusText}</b></p>
             
             ${priceHtml} 
 
-            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <div style="margin-top: 20px; display: flex; flex-direction: row; justify-content: center; gap: 10px; align-items: center;">
                 ${price ? `
-                <button onclick="switchForm('FULL')" 
+                <button class="btn tab-btn" onclick="switchForm('FULL')" 
                         style="width: 100%; max-width: 250px; background: #04e061; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                    Оформить заказ полностью
+                    Оформить полную заявку
                 </button>
                 ` : ''}
 
-                <button onclick="cancelOrder('${finalNum}')" 
-                        style="width: 100%; max-width: 250px; background: #f4f4f4; color: #666; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                <button class="btn btn-outline" onclick="cancelOrder('${finalNum}')" 
+                        style="width: 100%; max-width: 250px; color: #666; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
                     Отменить заявку
                 </button>
             </div>
             
-            <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                ${price ? 'Мастер оценил работу. Выберите время визита.' : 'Ожидайте, мастер рассчитывает стоимость...'}
+            <p style="font-size: 15px; color: #999; margin-top: 15px;">
+                ${price ? 'Мастер оценил стоимость работы. Выберите время визита.' : 'Ожидайте, мастер рассчитывает стоимость...'}
             </p>
         </div>
     `;
