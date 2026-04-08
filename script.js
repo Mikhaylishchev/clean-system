@@ -172,7 +172,7 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         });
 
         /** =================== ЛОГИКА ФОРМЫ ===================== **/
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyWUbzKxrh9pf4rol78ZxXVH3pHvx-1iI-OAbFPbptwMXW5oWRecHUed43GLsEwRmUu/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz8uLhZLzrF2XrKe0iyLXdWgWHcYyl9CNaly0C7O9N6wrfRyudgbjFFN6uf6Tr6id1nFQ/exec';
         // ================================================================
         // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
         // Если подсказки адреса перестали работать:
@@ -457,25 +457,27 @@ function renderPreviews() {
             }); return Promise.all(promises);
         };
 
-        form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const currentForm = e.target;
     const status = document.getElementById('status');
     const btn = document.getElementById('submit-btn');
-    const typeEl = document.getElementById('form_type');
+    
+    // 1. ОПРЕДЕЛЯЕМ РЕЖИМ (по видимости поля адреса)
     const addressField = document.getElementById('address');
-    const currentMode = typeEl ? typeEl.value : 'LIGHT';
-    const isFull = (currentMode === 'FULL');
+    const isActuallyFull = addressField && addressField.offsetParent !== null;
 
-    // 1. Валидация фото (LIGHT)
-    if (currentMode === 'LIGHT' && selectedFiles.length === 0) {
-        alert("Пожалуйста, прикрепите хотя бы одно фото мебели, чтобы мастер мог оценить стоимость!");
-        return;
-    }
-
-    // 2. Валидация адреса (FULL)
-    if (currentMode === 'FULL' && addressField) {
+    // 2. ВАЛИДАЦИЯ
+    if (!isActuallyFull) {
+        // Проверка фото для LIGHT
+        const hasExistingOrder = localStorage.getItem('cached_order');
+        if (selectedFiles.length === 0 && !hasExistingOrder) {
+            alert("Пожалуйста, прикрепите фото мебели для оценки стоимости!");
+            return;
+        }
+    } else {
+        // Проверка адреса для FULL
         const addrValue = addressField.value.trim();
         if (!/[а-яА-ЯёЁa-zA-Z]/.test(addrValue) || !/\d/.test(addrValue)) {
             alert("Пожалуйста, введите точный адрес (улица и дом)!"); 
@@ -484,99 +486,92 @@ function renderPreviews() {
         }
     }
 
-    // 3. Антиспам
+    // 3. АНТИСПАМ
     const timePassed = (typeof pageLoadTime !== 'undefined') ? (Date.now() - pageLoadTime) : 5000;
     if (document.getElementById('honeypot').value || timePassed < 4000) return;
 
-    // 4. Подготовка кнопки
+    // 4. ПОДГОТОВКА КНОПКИ
     const originalBtnHTML = btn.innerHTML;
     btn.disabled = true; 
     btn.innerHTML = `<span class="spinner"></span> Отправка...`;
-    
-    status.style.color = "var(--primary)"; 
-    status.textContent = "⏳ Соединение с сервером...";
+    if (status) status.textContent = "⏳ Соединение с сервером...";
 
     try {
+        // Разблокируем поля для FormData
+        const allInputs = currentForm.querySelectorAll('input, select, textarea');
+        allInputs.forEach(el => el.disabled = false);
+
         const formData = new FormData(currentForm);
         const data = Object.fromEntries(formData.entries());
+        data.session_id = currentSessionId;
 
-        // Критически важные ID
-        data.session_id = currentSessionId; // Берем из глобальной переменной
-        data.form_type = currentMode;
-
-        if (currentMode === 'LIGHT') {
-            data.address = "Расчёт стоимости работы";
-            data.date = "Не указана";
-            data.time = "Не указано";
+        // 5. СБОРКА ДАННЫХ (ЕДИНЫЙ БЛОК)
+        if (!isActuallyFull) {
+            data.form_type = 'LIGHT';
+            data.is_update = "false";
+            data.address = "Расчёт стоимости";
         } else {
-            const addr = addressField.value;
-            const flat = document.getElementById('flat').value;
-            data.address = flat ? `${addr}, кв/оф: ${flat}` : addr;
-            data.date = document.getElementById('order-date').value || "Не выбрана";
-            data.time = `${document.getElementById('hours').value}:${document.getElementById('minutes').value}`;
+            data.form_type = 'FULL';
+            data.is_update = "true";
+            
+            // Наследование номера и цены
+            data.order_number = localStorage.getItem('cached_order') || "";
+            data.price = localStorage.getItem('cached_price') || "";
+
+            // Сборка адреса (улица + дом + квартира)
+            const flatVal = document.getElementById('flat')?.value.trim() || "";
+            data.address = flatVal ? `${data.address}, кв/оф: ${flatVal}` : data.address;
+            
+            // Дата и время
+            const hourVal = document.getElementById('hours')?.value || "00";
+            const minVal = document.getElementById('minutes')?.value || "00";
+            data.time = `${hourVal}:${minVal}`;
         }
 
+        // 6. ФАЙЛЫ
         if (selectedFiles.length > 0) {
-            status.textContent = "📸 Обработка фото...";
             data.filesJSON = JSON.stringify(await getFilesData(selectedFiles));
         }
 
-        status.textContent = "📡 Передача данных...";
-
+        // 7. ОТПРАВКА
         const bodyData = new URLSearchParams();
-        for (const key in data) { bodyData.append(key, data[key]); }
+        for (const key in data) bodyData.append(key, data[key] || "");
 
-        // ОТПРАВЛЯЕМ (no-cors)
-        fetch(scriptURL, { 
-            method: 'POST', 
-            body: bodyData,
-            mode: 'no-cors'
-        });
+        fetch(scriptURL, { method: 'POST', body: bodyData, mode: 'no-cors' });
 
-        // 5. ПАУЗА И ПОЛУЧЕНИЕ НОМЕРА
-        status.textContent = "🔍 Присваиваем номер заявке...";
-        
-        // Ждем 3.5 секунды, чтобы Google успел "прожевать" POST-запрос
-        await new Promise(resolve => setTimeout(resolve, 3500));
+        // 8. СИНХРОНИЗАЦИЯ
+        if (status) status.textContent = "🔍 Обновляем статус...";
+        await new Promise(resolve => setTimeout(resolve, 4000));
+        await checkActiveOrder(true); 
 
-        // Первая попытка синхронизации
-        await checkActiveOrder(); 
-        let finalOrderNumber = localStorage.getItem('cached_order');
+        const finalOrder = localStorage.getItem('cached_order');
 
-        // Если с первого раза не нашли (Google бывает задумчив)
-        if (!finalOrderNumber) {
-            status.textContent = "⏳ Почти готово...";
-            await new Promise(resolve => setTimeout(resolve, 2500));
-            await checkActiveOrder();
-            finalOrderNumber = localStorage.getItem('cached_order');
-        }
-
-        // Результирующий номер для показа
-        const orderToDisplay = finalOrderNumber || "принята";
-
-        // 6. ПОКАЗЫВАЕМ МОДАЛКУ (ОДИН РАЗ!)
+        // 9. ПОКАЗ МОДАЛКИ
         showModal(
             "Заявка отправлена!", 
-            isFull ? "Мы свяжемся с вами для подтверждения времени." : "Мастер рассчитает стоимость, и она появится в этом окне.", 
+            isActuallyFull ? "Мастер свяжется с вами для подтверждения заказа." : "Мастер рассчитает стоимость, и она появится здесь.", 
             "success", 
             "", 
-            orderToDisplay
+            finalOrder || "в обработке"
         );
 
-        // 7. ОЧИСТКА
-        if (!isFull) {
-            currentForm.reset(); 
+        // 10. ФИНАЛЬНЫЕ ФЛАГИ
+        if (isActuallyFull) {
+            // Если отправили FULL - блокируем всё
+            localStorage.setItem('full_submitted', 'true');
+        } else {
+            // Если LIGHT - просто чистим форму для следующего шага
+            currentForm.reset();
             selectedFiles = [];
             if (typeof renderPreviews === 'function') renderPreviews();
-            
-            // Чистим черновики, так как заявка уже ушла
-            localStorage.removeItem('draft_name');
-            localStorage.removeItem('draft_phone');
         }
 
+        // ВЫЗЫВАЕМ ПЕРЕКЛЮЧЕНИЕ (Оно увидит флаг full_submitted и покажет заглушку)
+        switchForm(isActuallyFull ? 'FULL' : 'LIGHT');
+
     } catch (err) {
-        console.error("Ошибка в submit:", err);
-        showModal("Заявка принята!", "Мастер уже получил уведомление.", "success", "", "в обработке");
+        console.error("Ошибка:", err);
+        showModal("Готово!", "Заявка отправлена мастеру.", "success", "", "в обработке");
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalBtnHTML;
@@ -679,44 +674,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function switchForm(mode) {
-    const currentMode = mode.toUpperCase();
+    // 1. Сначала определяем все элементы и переменные
+    const currentMode = mode ? mode.toUpperCase() : 'LIGHT';
     const overlay = document.getElementById('status-overlay');
     const formFields = document.getElementById('form-fields-wrapper');
+    const tabsRow = document.querySelector('.form-tabs'); 
     
-    const activeOrder = localStorage.getItem('active_order_id');
-    const activeStatus = localStorage.getItem('active_order_status'); // Читаем статус
+    const activeOrder = localStorage.getItem('cached_order');
+    const activeStatus = localStorage.getItem('cached_status');
+    const fullSubmitted = localStorage.getItem('full_submitted') === 'true';
 
-    // 1. ЛОГИКА "УМНОГО" ПЕРЕКРЫТИЯ
-    let shouldShowOverlay = false;
-
-    if (currentMode === 'LIGHT' && activeOrder) {
-        // В краткой форме показываем заглушку всегда, если есть заказ
-        shouldShowOverlay = true;
-    } 
-    else if (currentMode === 'FULL' && activeOrder && activeStatus === 'Подтверждён') {
-        // В полной форме показываем заглушку ТОЛЬКО если статус "Подтверждён"
-        shouldShowOverlay = true;
-    }
-
-    // 2. ПРИМЕНЯЕМ ВИДИМОСТЬ
-    if (shouldShowOverlay) {
-        if (overlay) overlay.style.display = 'block';
-        if (formFields) formFields.style.display = 'none';
-        checkActiveOrder(); // Обновляем данные с сервера
-        updateTabVisuals(currentMode);
-        return; // Выходим, поля не нужны
-    } else {
-        // Показываем поля формы
-        if (overlay) overlay.style.display = 'none';
-        if (formFields) formFields.style.display = 'block';
-    }
-
-    // 3. ОСТАЛЬНОЙ КОД (updateTabVisuals, fieldsToToggle и т.д.)
-    updateTabVisuals(currentMode);
-
-    // 4. УПРАВЛЕНИЕ ПОЛЯМИ (Показываем/скрываем части формы внутри formFields)
-    // Этот блок работает только если formFields.style.display = 'block'
-    const isFull = (currentMode === 'FULL');
+    // Массив полей (теперь он объявлен в начале и не вызовет ReferenceError)
     const fieldsToToggle = [
         document.getElementById('extra-fields-address'),
         document.getElementById('extra-fields-date'),
@@ -724,12 +692,54 @@ function switchForm(mode) {
         document.getElementById('extra-fields-type-of-furniture'),
     ];
 
+    // 2. ПРИНУДИТЕЛЬНАЯ БЛОКИРУВКА (Если полная форма отправлена)
+    if (fullSubmitted) {
+        if (overlay) overlay.style.setProperty('display', 'block', 'important');
+        if (formFields) formFields.style.setProperty('display', 'none', 'important');
+        
+        // Скрываем кнопки переключения режимов навсегда
+        if (tabsRow) {
+            tabsRow.style.setProperty('display', 'none', 'important');
+        }
+        
+        renderPlaceholder(activeOrder, activeStatus || 'Новый'); 
+        return; // Выход. Код ниже не выполнится.
+    }
+
+    // 3. ЛОГИКА ОТОБРАЖЕНИЯ ЗАГЛУШКИ (Если есть заказ, но FULL еще не отправлен)
+    let shouldShowOverlay = false;
+    if (activeOrder && currentMode === 'LIGHT') {
+        shouldShowOverlay = true;
+    }
+
+    if (shouldShowOverlay) {
+        if (overlay) overlay.style.display = 'block';
+        if (formFields) formFields.style.display = 'none';
+        if (tabsRow) tabsRow.style.display = 'flex';
+        
+        // Рисуем заглушку ПЕРЕД проверкой статуса, чтобы юзер не видел пустоту
+        renderPlaceholder(activeOrder, activeStatus || 'Новый', localStorage.getItem('cached_price') || "");
+
+        checkActiveOrder(); // Обновляем статус в фоне
+        updateTabVisuals(currentMode);
+        return; 
+    } else {
+        if (overlay) overlay.style.display = 'none';
+        if (formFields) formFields.style.display = 'block';
+        if (tabsRow) tabsRow.style.display = 'flex';
+    }
+
+    // 4. ПЕРЕКЛЮЧЕНИЕ ВИДИМОСТИ ПОЛЕЙ (LIGHT vs FULL)
+    updateTabVisuals(currentMode);
+    const isFull = (currentMode === 'FULL');
+
     fieldsToToggle.forEach(el => {
         if (!el) return;
         if (isFull) {
             el.style.display = 'grid';
             el.querySelectorAll('input, select, textarea').forEach(i => {
                 i.disabled = false;
+                // Авто-требование заполнения для важных полей в полной форме
                 if (['address', 'order-date'].includes(i.id)) i.required = true;
             });
         } else {
@@ -740,14 +750,6 @@ function switchForm(mode) {
             });
         }
     });
-
-    // Автозаполнение
-    if (isFull) {
-        const n = document.getElementById('name');
-        const p = document.getElementById('phone');
-        if (n) n.value = localStorage.getItem('draft_name') || n.value;
-        if (p) p.value = localStorage.getItem('draft_phone') || p.value;
-    }
 }
 
 function updateTabVisuals(mode) {
@@ -788,98 +790,114 @@ function goToForm(mode) {
 
 
 // ================= ПРОВЕРКА АКТИВНОГО ЗАКАЗА (ГИБРИДНАЯ) =================
-async function checkActiveOrder() {
-    // Используем правильный ID, который задан в начале файла
-    const sessionId = localStorage.getItem('service_session_id'); 
-    const cachedOrder = localStorage.getItem('cached_order');
-    const cachedStatus = localStorage.getItem('cached_status') || 'Новый';
+async function checkActiveOrder(force = false) {
+    // Используем именно тот ключ, который у тебя в начале файла
+    const sessionId = localStorage.getItem('service_session_id');
+    const orderNumber = localStorage.getItem('cached_order');
 
-    // ОПТИМИЗАЦИЯ: Если человек еще ничего не отправлял, не мучаем сервер
-    if (!sessionId && !cachedOrder) {
-        console.log("Новый посетитель, проверка статуса пропущена.");
-        return;
-    }
-
-    // 1. МГНОВЕННЫЙ ПОКАЗ (из памяти)
-    if (cachedOrder) {
-        renderPlaceholder(cachedOrder, cachedStatus);
-    }
+    if (!sessionId && !orderNumber) return;
 
     try {
-        // 2. ФОНОВАЯ СИНХРОНИЗАЦИЯ
-        // Важно: используем sessionId, который достали выше
-        const response = await fetch(`${scriptURL}?action=check_status&session_id=${sessionId}&t=${Date.now()}`);
-        const data = await response.json();
+        // Меняем action на check_status, как в Apps Script
+        const url = `${scriptURL}?action=check_status&service_session_id=${sessionId}&order_number=${orderNumber || ''}&t=${Date.now()}`;
         
-        console.log("Данные из таблицы:", data);
+        const response = await fetch(url);
+        const result = await response.json();
 
-        if (data && data.hasActiveOrder) {
-            // Сохраняем актуальное состояние
-            localStorage.setItem('active_order_id', data.orderNumber);
-            localStorage.setItem('active_order_status', data.status); 
-            localStorage.setItem('cached_order', data.orderNumber);
-            localStorage.setItem('cached_status', data.status);
-            
-            // Перерисовываем с ценой
-            renderPlaceholder(data.orderNumber, data.status, data.price);
-        } else {
-            // Если заказа больше нет (выполнен/отменен в таблице)
-            if (cachedOrder) {
-                localStorage.removeItem('active_order_id');
-                localStorage.removeItem('cached_order');
-                localStorage.removeItem('cached_status');
-                location.reload(); 
-            }
+        // Внутри функции checkActiveOrder, где обрабатывается ответ от сервера:
+        if (result && result.found) {
+        const status = result.status;
+
+        // Проверка на завершение (наша прошлая правка)
+        if (status === "Выполнен" || status === "Отменён") {
+            const keys = ['cached_order','cached_status','cached_price','full_submitted','cached_address','cached_date','cached_time'];
+            keys.forEach(k => localStorage.removeItem(k));
+            switchForm('LIGHT');
+            return false;
+        }
+
+        // Сохраняем всё, что прислал сервер
+        localStorage.setItem('cached_order', result.orderNumber);
+        localStorage.setItem('cached_status', status);
+        localStorage.setItem('cached_price', result.price || "");
+        localStorage.setItem('cached_address', result.address || "");
+        localStorage.setItem('cached_date', result.date || "");
+        localStorage.setItem('cached_time', result.time || "");
+
+        // Сразу перерисовываем, чтобы данные обновились без перезагрузки
+        renderPlaceholder(result.orderNumber, status, result.price || "");
+        return true;
+    } else {
+            // Если заказ вообще не найден в таблице
+            localStorage.removeItem('cached_order');
+            return false;
         }
     } catch (e) {
-        console.log("Ошибка связи с таблицей:", e);
+        console.error("Ошибка синхронизации:", e);
     }
+    return false;
 }
 
 // Мини-функция, чтобы не дублировать HTML-код заглушки
 function renderPlaceholder(orderNum, statusText, price = "") {
     const overlay = document.getElementById('status-overlay');
     const formFields = document.getElementById('form-fields-wrapper');
-    
     if (!overlay || !formFields) return;
 
-    // Защита: если номер заказа пришел как "принята" или пустой, берем из кэша
+    const finalPrice = price || localStorage.getItem('cached_price') || "";
     const finalNum = (orderNum && orderNum !== "принята") ? orderNum : (localStorage.getItem('cached_order') || "...");
+    
+    // Подтягиваем новые данные из кэша
+    const addr = localStorage.getItem('cached_address');
+    const date = localStorage.getItem('cached_date');
+    const time = localStorage.getItem('cached_time');
+    const fullSubmitted = localStorage.getItem('full_submitted') === 'true';
+
+    // Блок деталей визита (показываем, если форма FULL уже отправлена)
+    let detailsHtml = "";
+    if (fullSubmitted && addr && addr !== "Расчёт стоимости") {
+        detailsHtml = `
+            <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 15px 0; border: 1px solid #eee; font-size: 14px; line-height: 1.6;">
+                <div style="margin-bottom: 5px;">📍 <b>Адрес:</b> ${addr}</div>
+                <div style="margin-bottom: 5px;">📅 <b>Дата:</b> ${date}</div>
+                <div>⏱️ <b>Время:</b> ${time}</div>
+            </div>
+        `;
+    }
 
     let priceHtml = "";
-    if (price && price.toString().trim() !== "") {
+    if (finalPrice) {
         priceHtml = `
-            <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; background: var(--light-blue); border: 2px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0;">
-                <p style="margin:0; font-size: 14px; color: #666;">Стоимость работы по Вашей заявке:</p>
-                <p style="margin:0; font-size: 26px; font-weight: 800; color: var(--primary);">${price} ₽</p>
+            <div style="background: #eef7ff; border: 2px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0;align-items: center; display: flex; justify-content: center; flex-direction: column;">
+                <p style="margin:0; font-size: 13px; color: #666;">Расчётная стоимость:</p>
+                <p style="margin:0; font-size: 26px; font-weight: 800; color: var(--primary);">${finalPrice} ₽</p>
             </div>
         `;
     }
 
     overlay.innerHTML = `
-        <div style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 40px; margin-bottom: 10px;">⏱️</div>
+        <div style="text-align: center; padding: 10px 0;">
+            <div style="font-size: 45px; margin-bottom: 10px;">${fullSubmitted ? '✅' : '⏱️'}</div>
             <h2 style="font-size: 22px; margin-bottom: 5px;">Заявка №${finalNum}</h2>
             <p style="color: #666; font-size: 14px;">Статус: <b style="color: var(--primary);">${statusText}</b></p>
             
-            ${priceHtml} 
+            ${priceHtml}
+            ${detailsHtml}
 
-            <div style="margin-top: 20px; display: flex; flex-direction: row; justify-content: center; gap: 10px; align-items: center;">
-                ${price ? `
-                <button class="btn tab-btn" onclick="switchForm('FULL')" 
-                        style="width: 100%; max-width: 250px; background: #04e061; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                    Оформить полную заявку
-                </button>
+            <div style="margin-top: 20px; display: flex; flex-direction: row; gap: 10px; align-items: center;">
+                ${(!fullSubmitted && finalPrice) ? `
+                    <button class="btn" onclick="switchForm('FULL')" style="width: 100%; background: #04e061; color: white;">Составить полную заявку</button>
                 ` : ''}
-
-                <button class="btn btn-outline" onclick="cancelOrder('${finalNum}')" 
-                        style="width: 100%; max-width: 250px; color: #666; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                    Отменить заявку
+                
+                <button class="btn btn-outline" onclick="cancelOrder('${finalNum}')" style="width: 100%; border: 1px solid #ddd; color: #888; background: transparent;background: #eee;">
+                    ${fullSubmitted ? 'Отменить или перенести' : 'Отменить заявку'}
                 </button>
             </div>
             
-            <p style="font-size: 15px; color: #999; margin-top: 15px;">
-                ${price ? 'Мастер оценил стоимость работы. Выберите время визита.' : 'Ожидайте, мастер рассчитывает стоимость...'}
+            <p style="font-size: 13px; color: #999; margin-top: 15px;">
+                ${fullSubmitted 
+                    ? 'Мастер приедет точно в срок. При изменении планов, пожалуйста, сообщите нам.' 
+                    : 'Мастер рассчитывает стоимость по вашим фото. Информация обновится здесь автоматически.'}
             </p>
         </div>
     `;
@@ -893,32 +911,36 @@ async function cancelOrder(orderNum) {
     if (!confirm('Вы уверены, что хотите отменить заявку?')) return;
 
     try {
-        // 1. Сначала уведомляем сервер (Гугл Таблицу)
-        // Добавляем t=Date.now() чтобы браузер не выдал старый ответ из кэша
-        const response = await fetch(`${scriptURL}?action=cancel_order&order_id=${orderNum}&t=${Date.now()}`);
+        // 1. Уведомляем сервер
+        // Используем fetch без await или с обработкой, так как Apps Script может вернуть CORS error 
+        // при успешном выполнении. Добавляем t для сброса кэша.
+        fetch(`${scriptURL}?action=cancel_order&order_id=${orderNum}&t=${Date.now()}`, { mode: 'no-cors' });
         
-        // 2. ПОЛНАЯ ОЧИСТКА всех следов заказа в браузере
+        // 2. ПОЛНАЯ ОЧИСТКА (Выметаем всё подчистую)
         const keysToRemove = [
             'active_order_id', 
             'active_order_status', 
             'cached_order', 
             'cached_status',
-            'session_id',         // Удаляем ID сессии, чтобы пользователь стал "новым"
-            'service_session_id'  // И этот тоже, если используешь такое имя
+            'cached_price',
+            'full_submitted',     // КРИТИЧНО: именно этот флаг держит заглушку!
+            'cached_address',      // На будущее
+            'cached_date',         // На будущее
+            'cached_time',         // На будущее
+            'service_session_id'   // Сбрасываем сессию, чтобы юзер мог создать НОВЫЙ заказ
         ];
         
         keysToRemove.forEach(key => localStorage.removeItem(key));
         
         alert('Заявка успешно отменена.');
         
-        // 3. Жесткая перезагрузка, чтобы сбросить все состояния скрипта
+        // 3. Жесткая перезагрузка вернет форму в исходное состояние
         window.location.reload(); 
 
     } catch (e) {
         console.error("Ошибка при отмене:", e);
-        // Даже если сервер упал, лучше почистить локально, чтобы юзер не застрял
-        localStorage.removeItem('cached_order');
-        localStorage.removeItem('cached_status');
-        location.reload();
+        // Резервный план: если всё упало, чистим базу и перезагружаем
+        localStorage.clear(); // Радикально, но эффективно
+        window.location.reload();
     }
 }
