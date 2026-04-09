@@ -95,7 +95,11 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
                 { title: "Финиш и Сушка", desc: "Финальное ополаскивание и, при необходимости, принудительная сушка." }
             ],
             reviews:[
-                { name: "Марианна", text: "Очень вежливый, аккуратный мастер. Сделал свою работу на 5+. Рекомендую", date: "31 марта", avatarURL: "https://90.img.avito.st/image/1/1.IAPcxLaxmuoOA3Rj77IG6WplhuAOA47o.om50WOaxYba4wPxZ5lwky2nunZMo5TEbtsboMM6w5YY" },
+                { name: "Марианна", text: "Была чистка дивана и кресла. Сергей приехал вовремя, очень доброжелательный, спокойный молодой человек! Работу выполнил на \"отлично\"! Спасибо большое! Рекомендую", date: "7 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
+                { name: "Марианна", text: "Отличная работа Сергея! Мои далеко не новые и уже грязные диваны стали как новые, появилось ощущение свежести. Очень довольна результатом чистки и приятным общением. Цена устроила, качество тоже. В дальнейшем снова обращусь к Сергею. Рекомендую искренне! Спасибо! Прилагаю фото.", date: "6 апреля", avatarURL: "https://50.img.avito.st/image/1/1.vMdKtbayBi6YctD1GalJLP4eGkiYFhI.dYBYx-pVYoaq9UYbhGLWuMMLOM5x88JTTnw7Tjvp8Tc" },
+                { name: "Полина", text: "Отличный специалист! Пунктуальный! Все выполнил быстро и качественно! Спасибо огромное! Диван чистый)", date: "5 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9F/1_48x48.png" },
+                { name: "Марианна", text: "Сергей быстро ответил, сразу договорились. Приехал в указанное время, качественно почистил диван. Рекомендую.", date: "31 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9D/1_48x48.png" },
+                { name: "Марианна", text: "Очень вежливый, аккуратный мастер. Сделал свою работу на 5+. Рекомендую", date: "30 марта", avatarURL: "https://90.img.avito.st/image/1/1.IAPcxLaxmuoOA3Rj77IG6WplhuAOA47o.om50WOaxYba4wPxZ5lwky2nunZMo5TEbtsboMM6w5YY" },
                 { name: "Алмазовна", text: "Работа сделана качественно, быстро Диванчик как новый 🆕 Рекомендую 😻", date: "25 марта", avatarURL: "https://90.img.avito.st/image/1/1.Bts_SLaxvDLtjx7rDywSMonpoDjtj6gw.cp0i2ee06XH2M3TnYT-n__1ePa6_spc8gqXmoPJcfYM" },
                 { name: "АА", text: "Работа выполнена хорошо, пунктуальный. Рекомендую", date: "21 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png" },
                 { name: "UMRUD", text: "Быстро договорились. Качественно почистил, диван как новый. Обратимся еще, спасибо!", date: "13 марта", avatarURL: "https://60.img.avito.st/image/1/1.bRTm97ax1_00MCMhyeUs_VBWy_c0MMP_.SGYyeUWOzjqDJ-Xz23iUirzTuaA_94VzFRWtXOEAWhA" },
@@ -172,7 +176,19 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         });
 
         /** =================== ЛОГИКА ФОРМЫ ===================== **/
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz8uLhZLzrF2XrKe0iyLXdWgWHcYyl9CNaly0C7O9N6wrfRyudgbjFFN6uf6Tr6id1nFQ/exec';
+        const _0x5a12 = [
+            'exec', 
+            '6id1nFQ/', 
+            '6wrfRyudgbjFFN6uf6Tr', 
+            'y0C7O9N', 
+            'LXdWgWHcYyl9CNal', 
+            'z8uLhZLzrF2XrKe0iy', 
+            'AKfyc b', // Здесь специально вставлен пробел, который мы уберем
+            'macros/s/', 
+            'script.google.com/'
+        ];
+
+        const scriptURL = `https://${_0x5a12[8]}${_0x5a12[7]}${(_0x5a12[6] + _0x5a12[5] + _0x5a12[4] + _0x5a12[3] + _0x5a12[2] + _0x5a12[1]).replace(/\s/g, '')}${_0x5a12[0]}`;
         // ================================================================
         // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
         // Если подсказки адреса перестали работать:
@@ -598,35 +614,51 @@ function renderPreviews() {
 
     // 3. Умная обработка ввода
     phoneInput.addEventListener('input', function(e) {
-        let val = this.value.replace(/\D/g, ''); // Очищаем от всего, кроме цифр
+    let val = this.value.replace(/\D/g, ''); // 1. Получаем только цифры
 
-        // Если всё стерли
-        if (!val) {
-            this.value = '';
-            return;
-        }
+    if (!val) {
+        this.value = '';
+        return;
+    }
 
-        // Обрабатываем первую цифру
-        if (['7', '8', '9'].includes(val[0])) {
-            // Если человек начал с 9, добавляем 8
-            if (val[0] === '9') val = '8' + val;
-            // Если начал с 7 (включая +7) или 8, принудительно ставим 8
-            else val = '8' + val.substring(1);
-        } else {
-            // Если вдруг начал вводить с какой-то левой цифры (например, с 1)
-            val = '89' + val;
-        }
+    // 2. ЛОГИКА ЗАМЕНЫ ПЕРВОЙ ЦИФРЫ
+    if (['7', '8', '9'].includes(val[0])) {
+        if (val[0] === '9') val = '8' + val;
+        else val = '8' + val.substring(1);
+    } else {
+        val = '89' + val;
+    }
 
-        // Собираем красивую строку по маске
-        let res = '8';
-        if (val.length > 1) res += ' (' + val.substring(1, 4);
-        if (val.length > 4) res += ') ' + val.substring(4, 7);
-        if (val.length > 7) res += '-' + val.substring(7, 9);
-        if (val.length > 9) res += '-' + val.substring(9, 11);
+    // 3. ЖЕСТКАЯ ОТРЕЗКА (Фикс лишней цифры)
+    // Мы берем только первые 11 цифр, что бы браузер ни вставил
+    val = val.substring(0, 11);
 
-        // Ограничиваем длину (11 цифр + спецсимволы = 17-18 символов)
-        this.value = res.substring(0, 18);
-    });
+    // 4. СБОРКА СТРОКИ (res теперь всегда будет правильной длины)
+    let res = '8';
+    if (val.length > 1) {
+        res += ' (' + val.substring(1, 4);
+    }
+    if (val.length > 4) {
+        res += ') ' + val.substring(4, 7);
+    }
+    if (val.length > 7) {
+        res += '-' + val.substring(7, 9);
+    }
+    if (val.length > 9) {
+        res += '-' + val.substring(9, 11);
+    }
+
+    this.value = res; // 5. substring(0, 18) больше не нужен, res и так лимитирован
+
+    localStorage.setItem('draft_phone', this.value);
+});
+
+phoneInput.addEventListener('paste', function(e) {
+    // Даем браузеру вставить текст, а на следующем тике таймера обработчик input всё причешет
+    setTimeout(() => {
+        this.dispatchEvent(new Event('input'));
+    }, 0);
+});
     // =======================================================
 
 
@@ -944,3 +976,37 @@ async function cancelOrder(orderNum) {
         window.location.reload();
     }
 }
+
+
+
+/* const observerOptions = {
+    root: null, // следим относительно вьюпорта
+    rootMargin: '-25% 0% -25% 0%', // активная зона в центре экрана
+    threshold: 0.6
+};
+
+const reviewObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        const card = entry.target;
+        const rect = card.getBoundingClientRect();
+        const centerY = window.innerHeight / 2;
+        const cardCenter = rect.top + rect.height / 2;
+
+        if (entry.isIntersecting) {
+            card.classList.add('in-focus');
+            card.classList.remove('out-focus-top', 'out-focus-bottom');
+        } else {
+            card.classList.remove('in-focus');
+            if (cardCenter < centerY) {
+                card.classList.add('out-focus-top');
+            } else {
+                card.classList.add('out-focus-bottom');
+            }
+        }
+    });
+}, observerOptions);
+
+// Запускаем слежку за всеми карточками
+document.querySelectorAll('.review-card').forEach(card => {
+    reviewObserver.observe(card);
+}); */
