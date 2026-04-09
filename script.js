@@ -289,11 +289,20 @@ function renderPreviews() {
 
     try {
         const response = await fetch(`${scriptURL}?t=${Date.now()}`);
-        const bookedSlots = await response.json();
+        let data = await response.json(); // Называем просто data
         
-        // 2. ОСТАНАВЛИВАЕМ таймер анимации, когда данные пришли!
+        // ОСТАНАВЛИВАЕМ таймер анимации
         clearInterval(loadingInterval);
         hourSelect.innerHTML = '<option value="">Час</option>';
+        
+        // ПРОВЕРКА: если пришел не массив, а объект с полем (например, data.bookedSlots)
+        // или если пришла какая-то системная ошибка Google
+        const bookedSlots = Array.isArray(data) ? data : (data.bookedSlots || []);
+
+        if (!Array.isArray(bookedSlots)) {
+            console.error("Данные пришли в неверном формате:", data);
+            throw new Error("Формат данных не массив");
+        }
         
         const isFullDayBlocked = bookedSlots.some(slot => slot.date === selectedDate && slot.time === "Весь день");
         
