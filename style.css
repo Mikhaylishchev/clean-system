@@ -65,7 +65,7 @@
         .hero-bg-image {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url('https://10.img.avito.st/image/1/1.gfAQKLa4LRkmn68UHiaOoFyJLx-uia8PJoQvG6CBJROm.nNSJ02wcgfylx3GjiJCgoI5GQkYunSwUz9DzMrwtGz0?cqp=2.TSzMy-m0u9ojo94xoNTr4TIkcUBjMu1L_y5Z6Lr-VHA-3xfoRpsvf1jN4IBF36LEO13sxOCjYv9KRoXzpmAFvKTQ');
+            background-image: url('./img/main-img.webp');
             background-size: cover;
             background-position: center 20%;
             z-index: 1;
