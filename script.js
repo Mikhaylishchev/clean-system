@@ -53,13 +53,17 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         const DATA = {
             gallery:[
                 {
-                    before: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
-                    after:  "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                    before: "https://optim.tildacdn.com/tild3566-3163-4235-b962-663663666565/-/format/webp/photo_2023-12-15_10-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
+                    after:  "https://optim.tildacdn.com/tild6664-3963-4432-b530-616533633131/-/format/webp/photo_2023-12-15_10-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                },
+                {
+                    before: "https://optim.tildacdn.com/tild6332-3435-4236-b134-303737373037/-/contain/960x488/center/center/-/format/webp/_.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
+                    after:  "https://optim.tildacdn.com/tild6636-3634-4331-b863-303933333632/-/contain/960x488/center/center/-/format/webp/_.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 },
                 {
                     // Третья пара
-                    before: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
-                    after:  "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                    before: "https://optim.tildacdn.com/tild6631-6630-4331-a433-336664303161/-/format/webp/photo_2023-03-16_18-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
+                    after:  "https://optim.tildacdn.com/tild3265-3534-4562-b638-646230386561/-/format/webp/photo_2023-03-16_20-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 }
             ],
             prices: {
@@ -172,7 +176,20 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         });
 
         /** =================== ЛОГИКА ФОРМЫ ===================== **/
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz8uLhZLzrF2XrKe0iyLXdWgWHcYyl9CNaly0C7O9N6wrfRyudgbjFFN6uf6Tr6id1nFQ/exec';
+        const _0x5a12 = [
+        'exec', 
+        '6id1nFQ/', 
+        '6wrfRyudgbjFFN6uf6Tr', 
+        'y0C7O9N', 
+        'LXdWgWHcYyl9CNal', 
+        'z8uLhZLzrF2XrKe0iy', 
+        'AKfyc b', // Здесь специально вставлен пробел, который мы уберем
+        'macros/s/', 
+        'script.google.com/'
+        ];
+
+        // Собираем ссылку "по кусочкам" с небольшой магией
+        const scriptURL = `https://${_0x5a12[8]}${_0x5a12[7]}${(_0x5a12[6] + _0x5a12[5] + _0x5a12[4] + _0x5a12[3] + _0x5a12[2] + _0x5a12[1]).replace(/\s/g, '')}${_0x5a12[0]}`;
         // ================================================================
         // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
         // Если подсказки адреса перестали работать:
