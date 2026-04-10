@@ -65,7 +65,7 @@
         .hero-bg-image {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url('./img/main-img.webp');
+            background-image: url('https://mikhaylishchev.github.io/clean-system/img/main-img.webp');
             background-size: cover;
             background-position: center 20%;
             z-index: 1;
@@ -84,13 +84,12 @@
 
         .trust-badge {
             display: inline-flex; align-items: center; background: rgba(255,255,255,0.9);
-            color: var(--primary); border-radius: 30px;
+            color: var(--primary); padding: 8px 20px; border-radius: 30px;
             font-size: 14px; font-weight: 700; margin-bottom: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .trust-badge a {
             text-decoration: none;
             color: var(--accent);
-            padding: 10px 20px;
         }
         .hero h1 { font-size: 42px; margin-bottom: 20px; color: var(--text-dark); }
         .hero p { font-size: 18px; color: var(--text-light); margin-bottom: 30px; line-height: 1.6; font-weight: 500;}
@@ -234,21 +233,11 @@
         .tech-info { text-align: center; margin-bottom: 50px; font-size: 18px; color: var(--text-light); }
         .tech-info span { font-weight: 700; color: var(--primary); }
         .steps-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-        .step-card {
-            background: var(--white);
-            padding: 30px;
-            border-radius: var(--radius);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-            border: 1px solid #edf2f7;
-            transition: var(--transition);
-            -webkit-transition: var(--transition);
-            -moz-transition: var(--transition);
-            -ms-transition: var(--transition);
-            -o-transition: var(--transition);
-}
+        .step-card { 
+            background: var(--white); padding: 30px; border-radius: var(--radius); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; z-index: 1; 
+            overflow: hidden; border: 1px solid #edf2f7; transition: var(--transition);
+        }
         .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-soft); }
         .step-card::before { 
             content: attr(data-num); position: absolute; top: -15px; right: -10px; 
@@ -264,7 +253,6 @@
             scroll-snap-type: x mandatory; margin: 0 calc(-50vw + 50%);
             padding-left: calc(50vw - 50% + 20px); padding-right: calc(50vw - 50% + 20px);
             flex-wrap: wrap; justify-content: center;
-            max-height: 90vh;
         }
         .reviews-container::-webkit-scrollbar { display: none; }
         
@@ -287,90 +275,6 @@
             object-fit: cover;
             border-radius: 50%;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-/* Новая стилистика отзывов */
-
-#reviews-container-wrapper {
-    perspective: 1000px; /* Глубина сцены */
-    overflow: hidden;
-}
-
-.reviews-container {
-    display: flex;
-    /* flex-direction: column; */
-    align-items: center;
-    gap: 40px; /* Увеличим отступ для объема */
-    padding: 100px 0; /* Место для вылета первой и последней карточки */
-}
-
-.review-card {
-    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-    transform-origin: center center;
-    will-change: transform, opacity;
-    /* Убираем жесткие тени, сделаем их мягче для 3D */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    pointer-events: auto;
-    backface-visibility: hidden;
-    transform-style: preserve-3d;
-    
-}
-
-/* Класс, который мы будем вешать через JS, когда карточка в фокусе */
-.review-card.in-focus {
-    transform: scale(1) rotateX(0deg);
-    opacity: 1;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
-/* Классы для карточек выше и ниже центра */
-.review-card.out-focus-top {
-    transform: scale(0.85) rotateX(-20deg) translateY(20px);
-    opacity: 0.4;
-}
-
-.review-card.out-focus-bottom {
-    transform: scale(0.85) rotateX(20deg) translateY(-20px);
-    opacity: 0.4;
-}
-
-
-
-@supports (animation-timeline: view()) {
-    .review-card {
-        animation: rotate-card linear both;
-        animation-timeline: view();
-        animation-range: entry 0% exit 100%;
-    }
-
-    @keyframes rotate-card {
-        0% {
-            transform: scale(0.8) rotateX(-25deg) translateY(50px);
-            opacity: 0.3;
-        }
-        50% {
-            transform: scale(1) rotateX(0deg) translateY(0);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(0.8) rotateX(25deg) translateY(-50px);
-            opacity: 0.3;
-        }
-    }
-}
-
-
-
 
         /* ================= ФОРМА ОБРАТНОЙ СВЯЗИ ================= */
         .form-container {
