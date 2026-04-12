@@ -253,6 +253,7 @@
             scroll-snap-type: x mandatory; margin: 0 calc(-50vw + 50%);
             padding-left: calc(50vw - 50% + 20px); padding-right: calc(50vw - 50% + 20px);
             flex-wrap: wrap; justify-content: center;
+            max-height: 90vh;
         }
         .reviews-container::-webkit-scrollbar { display: none; }
         
@@ -260,9 +261,13 @@
             min-width: 340px; max-width: 420px; background: var(--bg-surface); padding: 30px;
             border-radius: var(--radius); scroll-snap-align: center; flex-shrink: 0;
             display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-soft);
+            backface-visibility: hidden; /* Убирает мерцание в 3D */
+            transform-style: preserve-3d; /* Важно для плавности наклона */
+            will-change: transform, opacity; /* Подсказка браузеру вынести слой на GPU */
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Делаем кривую чуть мягче */
         }
         .stars { color: var(--gold); font-size: 20px; margin-bottom: 20px; letter-spacing: 2px;}
-        .review-text { font-size: 16px; color: var(--text-dark); margin-bottom: 30px; line-height: 1.7; font-weight: 500;}
+        .review-text { font-size: medium; color: var(--text-dark); margin-bottom: 30px; line-height: 1.7; font-weight: 500; font-style: italic;}
         .review-footer { display: flex; align-items: center; gap: 16px; }
         .avatar {
             width: 50px; height: 50px; background: var(--bg-body);
@@ -276,6 +281,66 @@
             border-radius: 50%;
         }
 
+        
+
+
+
+
+
+
+
+        #reviews-container-wrapper {
+    perspective: 90vh; /* Глубина сцены */
+    overflow: hidden;
+}
+
+.reviews-container {
+    display: flex;
+    align-items: center;
+    /* gap: 40px; Увеличим отступ для объема */
+    /* padding: 100px 0; Место для вылета первой и последней карточки */
+}
+
+.review-card {
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: center center;
+    will-change: transform, opacity;
+    /* Убираем жесткие тени, сделаем их мягче для 3D */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+
+
+
+
+
+
+
+
+        @supports (animation-timeline: view()) {
+    .review-card {
+        animation: rotate-card linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+    }
+
+    @keyframes rotate-card {
+        0% {
+            transform: scale(0.8) rotateX(-25deg) translateY(50px);
+            opacity: 0.3;
+        }
+        50% {
+            transform: scale(1) rotateX(0deg) translateY(0);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(0.8) rotateX(25deg) translateY(-50px);
+            opacity: 0.3;
+        }
+    }
+}
+
+        
         /* ================= ФОРМА ОБРАТНОЙ СВЯЗИ ================= */
         .form-container {
             max-width: 730px; margin: 0 auto; background: var(--bg-surface);

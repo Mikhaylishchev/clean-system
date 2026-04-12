@@ -52,6 +52,11 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         // БАЗА ДАННЫХ
         const DATA = {
             gallery:[
+                
+                {
+                    before: "https://optim.tildacdn.com/tild6631-6630-4331-a433-336664303161/-/format/webp/photo_2023-03-16_18-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
+                    after:  "https://optim.tildacdn.com/tild3265-3534-4562-b638-646230386561/-/format/webp/photo_2023-03-16_20-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                },
                 {
                     before: "https://optim.tildacdn.com/tild3566-3163-4235-b962-663663666565/-/format/webp/photo_2023-12-15_10-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
                     after:  "https://optim.tildacdn.com/tild6664-3963-4432-b530-616533633131/-/format/webp/photo_2023-12-15_10-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
@@ -60,11 +65,6 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
                     before: "https://optim.tildacdn.com/tild6332-3435-4236-b134-303737373037/-/contain/960x488/center/center/-/format/webp/_.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
                     after:  "https://optim.tildacdn.com/tild6636-3634-4331-b863-303933333632/-/contain/960x488/center/center/-/format/webp/_.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 },
-                {
-                    // Третья пара
-                    before: "https://optim.tildacdn.com/tild6631-6630-4331-a433-336664303161/-/format/webp/photo_2023-03-16_18-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80&sat=-100&bri=-20",
-                    after:  "https://optim.tildacdn.com/tild3265-3534-4562-b638-646230386561/-/format/webp/photo_2023-03-16_20-.jpg.webp?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                }
             ],
             prices: {
                 sofas:[
@@ -99,16 +99,22 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
                 { title: "Финиш и Сушка", desc: "Финальное ополаскивание и, при необходимости, принудительная сушка." }
             ],
             reviews:[
+                { name: "Мария", text: "Обратилась за химчисткой стульев из достаточно проблематичного материала. Как итог, потрясающий результат работы, исполнение на высшем уровне, однозначно рекомендую к обращению.", date: "11 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9C/10_48x48.png" },
+                { name: "Elena", text: "Все прошло отлично мебель стала как новая . Сергей молодец выполнил свою работу аккуратно профессионально. 100 процентов рекомендую.", date: "11 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
+                { name: "Ирина Созонова (Серякова)", text: "Была чистка дивана и кресла. Сергей приехал вовремя, очень доброжелательный, спокойный молодой человек! Работу выполнил на \"отлично\"! Спасибо большое! Рекомендую", date: "7 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
+                { name: "Екатерина", text: "Отличная работа Сергея! Мои далеко не новые и уже грязные диваны стали как новые, появилось ощущение свежести. Очень довольна результатом чистки и приятным общением. Цена устроила, качество тоже. В дальнейшем снова обращусь к Сергею. Рекомендую искренне! Спасибо! Прилагаю фото.", date: "6 апреля", avatarURL: "https://50.img.avito.st/image/1/1.vMdKtbayBi6YctD1GalJLP4eGkiYFhI.dYBYx-pVYoaq9UYbhGLWuMMLOM5x88JTTnw7Tjvp8Tc" },
+                { name: "Полина", text: "Отличный специалист! Пунктуальный! Все выполнил быстро и качественно! Спасибо огромное! Диван чистый)", date: "5 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9F/1_48x48.png" },
+                { name: "Надежда", text: "Сергей быстро ответил, сразу договорились. Приехал в указанное время, качественно почистил диван. Рекомендую.", date: "31 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9D/1_48x48.png" },
                 { name: "Марианна", text: "Очень вежливый, аккуратный мастер. Сделал свою работу на 5+. Рекомендую", date: "31 марта", avatarURL: "https://90.img.avito.st/image/1/1.IAPcxLaxmuoOA3Rj77IG6WplhuAOA47o.om50WOaxYba4wPxZ5lwky2nunZMo5TEbtsboMM6w5YY" },
                 { name: "Алмазовна", text: "Работа сделана качественно, быстро Диванчик как новый 🆕 Рекомендую 😻", date: "25 марта", avatarURL: "https://90.img.avito.st/image/1/1.Bts_SLaxvDLtjx7rDywSMonpoDjtj6gw.cp0i2ee06XH2M3TnYT-n__1ePa6_spc8gqXmoPJcfYM" },
                 { name: "АА", text: "Работа выполнена хорошо, пунктуальный. Рекомендую", date: "21 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png" },
                 { name: "UMRUD", text: "Быстро договорились. Качественно почистил, диван как новый. Обратимся еще, спасибо!", date: "13 марта", avatarURL: "https://60.img.avito.st/image/1/1.bRTm97ax1_00MCMhyeUs_VBWy_c0MMP_.SGYyeUWOzjqDJ-Xz23iUirzTuaA_94VzFRWtXOEAWhA" },
                 { name: "Ольга", text: "Работа выполнена качественно, спасибо Сергею. Цена = качество однозначно. ✅ Будем обращаться еще", date: "10 марта", avatarURL: "https://40.img.avito.st/image/1/1.GUYB3raxo6_TGT82JN1mr7d_v6XTGbet.5-d61sh3agjJMXQ4HWNIB-GOCR9ewYLx9xuLDbEAZU4"  },
-                /* { name: "Василий", text: "Все отлично, быстро договорились, прибыл точно в срок. Работа выполнена качественно, рекомендую!", date: "10 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%92/2_48x48.png"  }, */
+                { name: "Василий", text: "Все отлично, быстро договорились, прибыл точно в срок. Работа выполнена качественно, рекомендую!", date: "10 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%92/2_48x48.png"  },
                 { name: "Анастасия Хар", text: "Замечательный мастер! Сразу ответил на сообщение, сразу подобрали удобное время. Приехал вовремя, всё подробно объяснил, очень вежливый и приятный человек!! Диван как новый🔥 Работа качественная, потом даже подарочек от мастера получили)", date: "9 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png"  },
                 { name: "Данила", text: "В мире можно потерять всё, но нельзя потерять номер этого человека. Повезло тем кто обратился к этому мастеру с самого начала — это можно назвать удачей.", date: "7 марта", avatarURL: "https://10.img.avito.st/image/1/1.r-tI-LaxFQKaP-XBTpONAf5ZCQiaPwEA.6RYurekKsJ-XFA-KezGZR7Iyx7a_K3FcnevUpryZJC0?cqp=2.pGdjs5fBvl5-fB-fm84xxYDAkt8GM2Wgr1fOyxua9Q=="  },
-                { name: "Елена", text: "Сергей , спасибо Вам большое за безупречную чистоту 🙏Вы настоящий профи . Быстро, качественно и недорого реабилитировали убитые кухонные кресла до состояния новой мебели . Отдельная благодарность за пунктуальность и ответственность, очень оценила, буду рекомендовать всем.", date: "6 марта", avatarURL: "https://80.img.avito.st/image/1/1.5RoHQLaxX_PVh7t1SU-Y87HhQ_nVh0vx.oe0twNXjKA1P_fa9vuZz18PISWE8nfw0hNWgWNkvddI"  },/* 
-                { name: "Частное лицо", text: "Отличный мастер👍пунктуальный, вежливый ,аккуратный, чистка матраса произведена качественно👌никаких нареканий нет, будем обращаться обязательно еще ! Однозначно ромендую!", date: "3 марта", avatarURL: "https://50.img.avito.st/image/1/1.bZhzlbax13GhUiOdSZ5mcsU0y3uhUsNz.lAUTRkJ8oV2lmJcZXNc6y1BsOCaUHqoLjjJ8Z1o0wpU"  }, */
+                { name: "Елена", text: "Сергей , спасибо Вам большое за безупречную чистоту 🙏Вы настоящий профи . Быстро, качественно и недорого реабилитировали убитые кухонные кресла до состояния новой мебели . Отдельная благодарность за пунктуальность и ответственность, очень оценила, буду рекомендовать всем.", date: "6 марта", avatarURL: "https://80.img.avito.st/image/1/1.5RoHQLaxX_PVh7t1SU-Y87HhQ_nVh0vx.oe0twNXjKA1P_fa9vuZz18PISWE8nfw0hNWgWNkvddI"  },
+                { name: "Частное лицо", text: "Отличный мастер👍пунктуальный, вежливый ,аккуратный, чистка матраса произведена качественно👌никаких нареканий нет, будем обращаться обязательно еще ! Однозначно ромендую!", date: "3 марта", avatarURL: "https://50.img.avito.st/image/1/1.bZhzlbax13GhUiOdSZ5mcsU0y3uhUsNz.lAUTRkJ8oV2lmJcZXNc6y1BsOCaUHqoLjjJ8Z1o0wpU"  },
             ]
         };
 
@@ -189,7 +195,8 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         ];
 
         // Собираем ссылку "по кусочкам" с небольшой магией
-        const scriptURL = `https://${_0x5a12[8]}${_0x5a12[7]}${(_0x5a12[6] + _0x5a12[5] + _0x5a12[4] + _0x5a12[3] + _0x5a12[2] + _0x5a12[1]).replace(/\s/g, '')}${_0x5a12[0]}`;
+        // const scriptURL = `https://${_0x5a12[8]}${_0x5a12[7]}${(_0x5a12[6] + _0x5a12[5] + _0x5a12[4] + _0x5a12[3] + _0x5a12[2] + _0x5a12[1]).replace(/\s/g, '')}${_0x5a12[0]}`;
+        const scriptURL = `https://script.google.com/macros/s/AKfycby8uqu5zq4g8ff9mUBxoy3nao3TygOEHPZNyAYJihdmvzvbBBVSHKVMyRCisfp9hC5u-A/exec`;
         // ================================================================
         // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
         // Если подсказки адреса перестали работать:
@@ -316,7 +323,7 @@ function renderPreviews() {
             if (prev) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${prev.raw}')">⬅️ ${prev.nice}</button>`;
             if (next) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${next.raw}')">${next.nice} ➡️</button>`;
             advice += "</div>";
-            showModal("День занят", `К сожалению, на <b>${formattedSelectedDate}</b> запись невозможна.`, "error", advice);
+            showModal("День занят", `Извините, на <b>${formattedSelectedDate}</b> запись невозможна.`, "error", advice);
             dateInput.value = ""; return;
         }
 
@@ -487,18 +494,31 @@ function renderPreviews() {
 
     // 2. ВАЛИДАЦИЯ
     if (!isActuallyFull) {
-        // Проверка фото для LIGHT
+        // РЕЖИМ LIGHT (Короткая форма)
         const hasExistingOrder = localStorage.getItem('cached_order');
-        if (selectedFiles.length === 0 && !hasExistingOrder) {
+        
+        // Если это новый заказ (нет номера в памяти) — фото обязательны
+        if (!hasExistingOrder && selectedFiles.length === 0) {
             alert("Пожалуйста, прикрепите фото мебели для оценки стоимости!");
             return;
         }
     } else {
-        // Проверка адреса для FULL
+        // РЕЖИМ FULL (Полная форма)
+        const photoInput = document.getElementById('image');
+        // Проверяем: скрыто ли поле? (если заказан LIGHT, оно будет none)
+        const isPhotoGroupHidden = photoInput && photoInput.closest('.input-group').style.display === 'none';
+
+        // Просим фото ТОЛЬКО если поле НЕ скрыто
+        if (!isPhotoGroupHidden && selectedFiles.length === 0) {
+            alert("Пожалуйста, прикрепите фото мебели!");
+            return;
+        }
+
+        // Валидация адреса
         const addrValue = addressField.value.trim();
         if (!/[а-яА-ЯёЁa-zA-Z]/.test(addrValue) || !/\d/.test(addrValue)) {
-            alert("Пожалуйста, введите точный адрес (улица и дом)!"); 
-            addressField.focus(); 
+            alert("Пожалуйста, введите точный адрес (улица и дом)!");
+            addressField.focus();
             return;
         }
     }
@@ -807,7 +827,7 @@ function updateTabVisuals(mode) {
     if (tabFull) tabFull.classList.toggle('active', isFull);
     
     if (formTitle) formTitle.innerText = isFull ? 'Оформить заявку' : 'Оставить заявку';
-    if (submitBtn) submitBtn.textContent = isFull ? 'Записаться на чистку' : 'Рассчитать стоимость';
+    if (submitBtn) submitBtn.textContent = isFull ? 'Отправить' : 'Рассчитать стоимость';
 }
 
 function goToForm(mode) {
@@ -835,50 +855,67 @@ function goToForm(mode) {
 
 // ================= ПРОВЕРКА АКТИВНОГО ЗАКАЗА (ГИБРИДНАЯ) =================
 async function checkActiveOrder(force = false) {
-    // Используем именно тот ключ, который у тебя в начале файла
     const sessionId = localStorage.getItem('service_session_id');
     const orderNumber = localStorage.getItem('cached_order');
+    const fullSubmitted = localStorage.getItem('full_submitted') === 'true';
 
-    if (!sessionId && !orderNumber) return;
+    const photoInput = document.getElementById('image');
+    const photoGroup = photoInput ? photoInput.closest('.input-group') : null;
+
+    if (!sessionId && !orderNumber) {
+        if (photoInput) photoInput.required = true;
+        if (photoGroup) photoGroup.style.display = 'block';
+        return;
+    }
 
     try {
-        // Меняем action на check_status, как в Apps Script
         const url = `${scriptURL}?action=check_status&service_session_id=${sessionId}&order_number=${orderNumber || ''}&t=${Date.now()}`;
-        
         const response = await fetch(url);
         const result = await response.json();
 
-        // Внутри функции checkActiveOrder, где обрабатывается ответ от сервера:
         if (result && result.found) {
-        const status = result.status;
+            let status = result.status;
+            if (status === "Спам" || status === "Бан") status = "Новый";
 
-        // Проверка на завершение (наша прошлая правка)
-        if (status === "Выполнен" || status === "Отменён") {
-            const keys = ['cached_order','cached_status','cached_price','full_submitted','cached_address','cached_date','cached_time'];
-            keys.forEach(k => localStorage.removeItem(k));
-            switchForm('LIGHT');
-            return false;
+            // ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ ЗДЕСЬ (ВАЖНО ДЛЯ CHROME)
+            const overlay = document.getElementById('status-overlay');
+            const isOverlayVisible = overlay && overlay.style.display === 'block';
+            const isFullTabActive = document.getElementById('tab-full')?.classList.contains('active');
+
+            if (status === "Выполнен" || status === "Отменён") {
+                const keys = ['cached_order','cached_status','cached_price','full_submitted','cached_address','cached_date','cached_time'];
+                keys.forEach(k => localStorage.removeItem(k));
+                if (photoInput) photoInput.required = true;
+                if (photoGroup) photoGroup.style.display = 'block';
+                switchForm('LIGHT');
+                return false;
+            }
+
+            // Обновляем данные в памяти
+            localStorage.setItem('cached_order', result.orderNumber);
+            localStorage.setItem('cached_status', status);
+            localStorage.setItem('cached_price', result.price || "");
+            localStorage.setItem('cached_address', result.address || "");
+            localStorage.setItem('cached_date', result.date || "");
+            localStorage.setItem('cached_time', result.time || "");
+
+            if (fullSubmitted || isOverlayVisible) {
+                renderPlaceholder(result.orderNumber, status, result.price || "", result.address, result.date, result.time);
+            } else {
+                // Если мы в полной форме и фото уже были в LIGHT
+                if (photoInput) {
+                    photoInput.required = false; 
+                    photoInput.removeAttribute('required'); // Дублируем для Chrome
+                }
+                if (photoGroup) photoGroup.style.display = 'none';
+
+                if (!isOverlayVisible && !isFullTabActive) {
+                    switchForm('FULL');
+                }
+            }
+            return true;
         }
-
-        // Сохраняем всё, что прислал сервер
-        localStorage.setItem('cached_order', result.orderNumber);
-        localStorage.setItem('cached_status', status);
-        localStorage.setItem('cached_price', result.price || "");
-        localStorage.setItem('cached_address', result.address || "");
-        localStorage.setItem('cached_date', result.date || "");
-        localStorage.setItem('cached_time', result.time || "");
-
-        // Сразу перерисовываем, чтобы данные обновились без перезагрузки
-        renderPlaceholder(result.orderNumber, status, result.price || "");
-        return true;
-    } else {
-            // Если заказ вообще не найден в таблице
-            localStorage.removeItem('cached_order');
-            return false;
-        }
-    } catch (e) {
-        console.error("Ошибка синхронизации:", e);
-    }
+    } catch (e) { console.error("Ошибка синхронизации:", e); }
     return false;
 }
 
@@ -946,10 +983,10 @@ function renderPlaceholder(orderNum, statusText, price = "") {
                 </button>
             </div>
             
-            <p style="font-size: 13px; color: #999; margin-top: 15px;">
+            <p style="font-size: 15px; color: #999; margin-top: 15px;">
                 ${fullSubmitted 
-                    ? 'Мастер приедет точно в срок. При изменении планов, пожалуйста, сообщите нам.' 
-                    : 'Мастер рассчитывает стоимость по вашим фото. Информация обновится здесь автоматически.'}
+                    ? 'Мастер приедет точно в срок. <br>При изменении планов, пожалуйста, сообщите нам.' 
+                    : `Мастер рассчитывает стоимость по вашим фото. <br>Информация о цене скоро появится прямо здесь.`}
             </p>
         </div>
     `;
