@@ -90,32 +90,32 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
                 ],
             },
             categories: { sofas: "Диваны", mattresses: "Кровати и матрасы", chairs: "Кресла и стулья", other: "Другое" },
-            steps:[
-                { title: "Обеспыливание", desc: "Глубокая сухая чистка мощным профессиональным пылесосом." },
-                { title: "Удаление пятен", desc: "Локальное выведение водонерастворимых и сложных пятен." },
-                { title: "Нанесение химии", desc: "Равномерное нанесение и выдержка основного чистящего состава." },
-                { title: "Ополаскивание", desc: "Экстракторная чистка с вытягиванием грязи из глубины ткани." },
-                { title: "Нейтрализация", desc: "Обработка кислотным ополаскивателем для удаления остатков химии." },
-                { title: "Финиш и Сушка", desc: "Финальное ополаскивание и, при необходимости, принудительная сушка." }
-            ],
-            reviews:[
-                { name: "Мария", text: "Обратилась за химчисткой стульев из достаточно проблематичного материала. Как итог, потрясающий результат работы, исполнение на высшем уровне, однозначно рекомендую к обращению.", date: "11 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9C/10_48x48.png" },
-                { name: "Elena", text: "Все прошло отлично мебель стала как новая . Сергей молодец выполнил свою работу аккуратно профессионально. 100 процентов рекомендую.", date: "11 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
-                { name: "Ирина Созонова (Серякова)", text: "Была чистка дивана и кресла. Сергей приехал вовремя, очень доброжелательный, спокойный молодой человек! Работу выполнил на \"отлично\"! Спасибо большое! Рекомендую", date: "7 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
-                { name: "Екатерина", text: "Отличная работа Сергея! Мои далеко не новые и уже грязные диваны стали как новые, появилось ощущение свежести. Очень довольна результатом чистки и приятным общением. Цена устроила, качество тоже. В дальнейшем снова обращусь к Сергею. Рекомендую искренне! Спасибо! Прилагаю фото.", date: "6 апреля", avatarURL: "https://50.img.avito.st/image/1/1.vMdKtbayBi6YctD1GalJLP4eGkiYFhI.dYBYx-pVYoaq9UYbhGLWuMMLOM5x88JTTnw7Tjvp8Tc" },
-                { name: "Полина", text: "Отличный специалист! Пунктуальный! Все выполнил быстро и качественно! Спасибо огромное! Диван чистый)", date: "5 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9F/1_48x48.png" },
-                { name: "Надежда", text: "Сергей быстро ответил, сразу договорились. Приехал в указанное время, качественно почистил диван. Рекомендую.", date: "31 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9D/1_48x48.png" },
-                { name: "Марианна", text: "Очень вежливый, аккуратный мастер. Сделал свою работу на 5+. Рекомендую", date: "31 марта", avatarURL: "https://90.img.avito.st/image/1/1.IAPcxLaxmuoOA3Rj77IG6WplhuAOA47o.om50WOaxYba4wPxZ5lwky2nunZMo5TEbtsboMM6w5YY" },
-                { name: "Алмазовна", text: "Работа сделана качественно, быстро Диванчик как новый 🆕 Рекомендую 😻", date: "25 марта", avatarURL: "https://90.img.avito.st/image/1/1.Bts_SLaxvDLtjx7rDywSMonpoDjtj6gw.cp0i2ee06XH2M3TnYT-n__1ePa6_spc8gqXmoPJcfYM" },
-                { name: "АА", text: "Работа выполнена хорошо, пунктуальный. Рекомендую", date: "21 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png" },
-                { name: "UMRUD", text: "Быстро договорились. Качественно почистил, диван как новый. Обратимся еще, спасибо!", date: "13 марта", avatarURL: "https://60.img.avito.st/image/1/1.bRTm97ax1_00MCMhyeUs_VBWy_c0MMP_.SGYyeUWOzjqDJ-Xz23iUirzTuaA_94VzFRWtXOEAWhA" },
-                { name: "Ольга", text: "Работа выполнена качественно, спасибо Сергею. Цена = качество однозначно. ✅ Будем обращаться еще", date: "10 марта", avatarURL: "https://40.img.avito.st/image/1/1.GUYB3raxo6_TGT82JN1mr7d_v6XTGbet.5-d61sh3agjJMXQ4HWNIB-GOCR9ewYLx9xuLDbEAZU4"  },
-                { name: "Василий", text: "Все отлично, быстро договорились, прибыл точно в срок. Работа выполнена качественно, рекомендую!", date: "10 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%92/2_48x48.png"  },
-                { name: "Анастасия Хар", text: "Замечательный мастер! Сразу ответил на сообщение, сразу подобрали удобное время. Приехал вовремя, всё подробно объяснил, очень вежливый и приятный человек!! Диван как новый🔥 Работа качественная, потом даже подарочек от мастера получили)", date: "9 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png"  },
-                { name: "Данила", text: "В мире можно потерять всё, но нельзя потерять номер этого человека. Повезло тем кто обратился к этому мастеру с самого начала — это можно назвать удачей.", date: "7 марта", avatarURL: "https://10.img.avito.st/image/1/1.r-tI-LaxFQKaP-XBTpONAf5ZCQiaPwEA.6RYurekKsJ-XFA-KezGZR7Iyx7a_K3FcnevUpryZJC0?cqp=2.pGdjs5fBvl5-fB-fm84xxYDAkt8GM2Wgr1fOyxua9Q=="  },
-                { name: "Елена", text: "Сергей , спасибо Вам большое за безупречную чистоту 🙏Вы настоящий профи . Быстро, качественно и недорого реабилитировали убитые кухонные кресла до состояния новой мебели . Отдельная благодарность за пунктуальность и ответственность, очень оценила, буду рекомендовать всем.", date: "6 марта", avatarURL: "https://80.img.avito.st/image/1/1.5RoHQLaxX_PVh7t1SU-Y87HhQ_nVh0vx.oe0twNXjKA1P_fa9vuZz18PISWE8nfw0hNWgWNkvddI"  },
-                { name: "Частное лицо", text: "Отличный мастер👍пунктуальный, вежливый ,аккуратный, чистка матраса произведена качественно👌никаких нареканий нет, будем обращаться обязательно еще ! Однозначно ромендую!", date: "3 марта", avatarURL: "https://50.img.avito.st/image/1/1.bZhzlbax13GhUiOdSZ5mcsU0y3uhUsNz.lAUTRkJ8oV2lmJcZXNc6y1BsOCaUHqoLjjJ8Z1o0wpU"  },
-            ]
+            // steps:[
+            //     { title: "Обеспыливание", desc: "Глубокая сухая чистка мощным профессиональным пылесосом." },
+            //     { title: "Удаление пятен", desc: "Локальное выведение водонерастворимых и сложных пятен." },
+            //     { title: "Нанесение химии", desc: "Равномерное нанесение и выдержка основного чистящего состава." },
+            //     { title: "Ополаскивание", desc: "Экстракторная чистка с вытягиванием грязи из глубины ткани." },
+            //     { title: "Нейтрализация", desc: "Обработка кислотным ополаскивателем для удаления остатков химии." },
+            //     { title: "Финиш и Сушка", desc: "Финальное ополаскивание и, при необходимости, принудительная сушка." }
+            // ],
+            // reviews:[
+            //     { name: "Мария", text: "Обратилась за химчисткой стульев из достаточно проблематичного материала. Как итог, потрясающий результат работы, исполнение на высшем уровне, однозначно рекомендую к обращению.", date: "11 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9C/10_48x48.png" },
+            //     { name: "Elena", text: "Все прошло отлично мебель стала как новая . Сергей молодец выполнил свою работу аккуратно профессионально. 100 процентов рекомендую.", date: "11 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
+            //     { name: "Ирина Созонова (Серякова)", text: "Была чистка дивана и кресла. Сергей приехал вовремя, очень доброжелательный, спокойный молодой человек! Работу выполнил на \"отлично\"! Спасибо большое! Рекомендую", date: "7 апреля", avatarURL: "https://50.img.avito.st/image/1/1.RMcCD7ay_i7QyFj2JTHzLLak4kjQrOo.vKNOhII2jlYCsyie7GxZ_gBomFmu0_I32RYe9OMvH0I" },
+            //     { name: "Екатерина", text: "Отличная работа Сергея! Мои далеко не новые и уже грязные диваны стали как новые, появилось ощущение свежести. Очень довольна результатом чистки и приятным общением. Цена устроила, качество тоже. В дальнейшем снова обращусь к Сергею. Рекомендую искренне! Спасибо! Прилагаю фото.", date: "6 апреля", avatarURL: "https://50.img.avito.st/image/1/1.vMdKtbayBi6YctD1GalJLP4eGkiYFhI.dYBYx-pVYoaq9UYbhGLWuMMLOM5x88JTTnw7Tjvp8Tc" },
+            //     { name: "Полина", text: "Отличный специалист! Пунктуальный! Все выполнил быстро и качественно! Спасибо огромное! Диван чистый)", date: "5 апреля", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9F/1_48x48.png" },
+            //     { name: "Надежда", text: "Сергей быстро ответил, сразу договорились. Приехал в указанное время, качественно почистил диван. Рекомендую.", date: "31 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%9D/1_48x48.png" },
+            //     { name: "Марианна", text: "Очень вежливый, аккуратный мастер. Сделал свою работу на 5+. Рекомендую", date: "31 марта", avatarURL: "https://90.img.avito.st/image/1/1.IAPcxLaxmuoOA3Rj77IG6WplhuAOA47o.om50WOaxYba4wPxZ5lwky2nunZMo5TEbtsboMM6w5YY" },
+            //     { name: "Алмазовна", text: "Работа сделана качественно, быстро Диванчик как новый 🆕 Рекомендую 😻", date: "25 марта", avatarURL: "https://90.img.avito.st/image/1/1.Bts_SLaxvDLtjx7rDywSMonpoDjtj6gw.cp0i2ee06XH2M3TnYT-n__1ePa6_spc8gqXmoPJcfYM" },
+            //     { name: "АА", text: "Работа выполнена хорошо, пунктуальный. Рекомендую", date: "21 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png" },
+            //     { name: "UMRUD", text: "Быстро договорились. Качественно почистил, диван как новый. Обратимся еще, спасибо!", date: "13 марта", avatarURL: "https://60.img.avito.st/image/1/1.bRTm97ax1_00MCMhyeUs_VBWy_c0MMP_.SGYyeUWOzjqDJ-Xz23iUirzTuaA_94VzFRWtXOEAWhA" },
+            //     { name: "Ольга", text: "Работа выполнена качественно, спасибо Сергею. Цена = качество однозначно. ✅ Будем обращаться еще", date: "10 марта", avatarURL: "https://40.img.avito.st/image/1/1.GUYB3raxo6_TGT82JN1mr7d_v6XTGbet.5-d61sh3agjJMXQ4HWNIB-GOCR9ewYLx9xuLDbEAZU4"  },
+            //     { name: "Василий", text: "Все отлично, быстро договорились, прибыл точно в срок. Работа выполнена качественно, рекомендую!", date: "10 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%92/2_48x48.png"  },
+            //     { name: "Анастасия Хар", text: "Замечательный мастер! Сразу ответил на сообщение, сразу подобрали удобное время. Приехал вовремя, всё подробно объяснил, очень вежливый и приятный человек!! Диван как новый🔥 Работа качественная, потом даже подарочек от мастера получили)", date: "9 марта", avatarURL: "https://static.avito.ru/stub_avatars/%D0%90/2_48x48.png"  },
+            //     { name: "Данила", text: "В мире можно потерять всё, но нельзя потерять номер этого человека. Повезло тем кто обратился к этому мастеру с самого начала — это можно назвать удачей.", date: "7 марта", avatarURL: "https://10.img.avito.st/image/1/1.r-tI-LaxFQKaP-XBTpONAf5ZCQiaPwEA.6RYurekKsJ-XFA-KezGZR7Iyx7a_K3FcnevUpryZJC0?cqp=2.pGdjs5fBvl5-fB-fm84xxYDAkt8GM2Wgr1fOyxua9Q=="  },
+            //     { name: "Елена", text: "Сергей , спасибо Вам большое за безупречную чистоту 🙏Вы настоящий профи . Быстро, качественно и недорого реабилитировали убитые кухонные кресла до состояния новой мебели . Отдельная благодарность за пунктуальность и ответственность, очень оценила, буду рекомендовать всем.", date: "6 марта", avatarURL: "https://80.img.avito.st/image/1/1.5RoHQLaxX_PVh7t1SU-Y87HhQ_nVh0vx.oe0twNXjKA1P_fa9vuZz18PISWE8nfw0hNWgWNkvddI"  },
+            //     { name: "Частное лицо", text: "Отличный мастер👍пунктуальный, вежливый ,аккуратный, чистка матраса произведена качественно👌никаких нареканий нет, будем обращаться обязательно еще ! Однозначно ромендую!", date: "3 марта", avatarURL: "https://50.img.avito.st/image/1/1.bZhzlbax13GhUiOdSZ5mcsU0y3uhUsNz.lAUTRkJ8oV2lmJcZXNc6y1BsOCaUHqoLjjJ8Z1o0wpU"  },
+            // ]
         };
 
         // РЕНДЕР КАРУСЕЛИ
@@ -168,18 +168,18 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
             btnElement.classList.add('active'); document.getElementById(`tab-${tabId}`).classList.add('active');
         }
 
-        // РЕНДЕР ЭТАПОВ И ОТЗЫВОВ
-        const stepsContainer = document.getElementById('steps-container');
-        DATA.steps.forEach((step, index) => {
-            stepsContainer.innerHTML += `<div class="step-card reveal delay-${index%3+1}" data-num="0${index + 1}"><h4>${step.title}</h4><p>${step.desc}</p></div>`;
-        });
+        // // РЕНДЕР ЭТАПОВ И ОТЗЫВОВ
+        // const stepsContainer = document.getElementById('steps-container');
+        // DATA.steps.forEach((step, index) => {
+        //     stepsContainer.innerHTML += `<div class="step-card reveal delay-${index%3+1}" data-num="0${index + 1}"><h4>${step.title}</h4><p>${step.desc}</p></div>`;
+        // });
 
-        const reviewsContainer = document.getElementById('reviews-container');
-        DATA.reviews.forEach((rev, i) => {
-            reviewsContainer.innerHTML += `<div class="review-card reveal delay-${i%3+1}"><div><div class="stars">★★★★★</div><p class="review-text">"${rev.text}"</p></div><div class="review-footer">
-                <div class="avatar"><img src="${rev.avatarURL}"/></div><div class="reviewer-info">
-                    <h5 style="font-size: 16px; font-weight: 700;">${rev.name}</h5><span style="font-size: 13px; color: var(--text-light);">${rev.date}</span></div></div></div>`;
-        });
+        // const reviewsContainer = document.getElementById('reviews-container');
+        // DATA.reviews.forEach((rev, i) => {
+        //     reviewsContainer.innerHTML += `<div class="review-card reveal delay-${i%3+1}"><div><div class="stars">★★★★★</div><p class="review-text">"${rev.text}"</p></div><div class="review-footer">
+        //         <div class="avatar"><img src="${rev.avatarURL}"/></div><div class="reviewer-info">
+        //             <h5 style="font-size: 16px; font-weight: 700;">${rev.name}</h5><span style="font-size: 13px; color: var(--text-light);">${rev.date}</span></div></div></div>`;
+        // });
 
         /** =================== ЛОГИКА ФОРМЫ ===================== **/
         const _0x5a12 = [
@@ -1050,4 +1050,27 @@ window.addEventListener('load', () => {
             }
         }
     }, 500); // Задержка 0.5 сек, чтобы маска успела загрузиться
+});
+
+
+
+// Вопрос-ответ
+
+document.addEventListener('DOMContentLoaded', () => {
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            const isOpen = item.classList.contains('active');
+            
+            // Закрываем все остальные (эффект "аккордеона")
+            faqItems.forEach(i => i.classList.remove('active'));
+            
+            // Если текущий был закрыт — открываем
+            if (!isOpen) {
+                item.classList.add('active');
+            }
+        });
+    });
 });
