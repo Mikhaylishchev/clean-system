@@ -62,9 +62,37 @@
 </head>
 <body>
 
+    <header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <span class="logo-icon">✨</span>
+            <span class="logo-text"><span>Логотип</span></span>
+        </div>
+        
+        <nav class="nav-menu" id="navMenu">
+            <a href="#results" class="nav-link">Результаты моей работы</a>
+            <a href="#prices" class="nav-link">Услуги и цены</a>
+            <a href="#how-i-do" class="nav-link">Как я работаю</a>
+            <a href="#reviews-container-wrapper" class="nav-link">Отзывы</a>
+            <a href="#faq" class="nav-link">Частые вопросы</a>
+            <a href="#order-form" onclick="goToForm('FULL')" class="tab-btn active">Заказать</a>
+        </nav>
+
+        <button class="burger" id="burgerBtn" aria-label="Меню">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
     <!-- HERO СЕКЦИЯ (Фото на пол-экрана с бесшовным растворением) -->
     <header class="hero">
-        <div class="hero-bg-image"></div>
+        <div class="hero-bg-image">
+            <img src="https://mikhaylishchev.github.io/clean-system/img/main-img.webp" alt="">
+        </div>
         
         <div class="hero-content reveal">
             <div class="trust-badge"><a href="#reviews-container-wrapper">⭐ 5.0 рейтинг на Авито | 291 отзыв</a></div>
@@ -87,7 +115,7 @@
     </header>
 
     <!-- ДО / ПОСЛЕ -->
-    <section class="gallery-section reveal">
+    <section id="results" class="gallery-section reveal">
         <div class="container">
             <h2>Результаты моей работы</h2>
             <div class="carousel-wrapper">
@@ -118,8 +146,9 @@
         </div>
     </section>
 
+    <div id="how-i-do">
     <!-- ЭТАПЫ РАБОТЫ -->
-    <section class="container reveal">
+    <section id="how-i-do" class="container reveal">
         <h2>Как я спасаю вашу мебель</h2>
         <p class="tech-info">
             Использую моющий пылесос <span>Kärcher</span> (Германия) и безопасную гипоаллергенную химию <span>Exeelon</span>. 
@@ -181,7 +210,7 @@
         </div>
     </section>
 
-    <section class="faq-section reveal">
+    <section id="faq" class="faq-section reveal">
     <div class="container">
         <h2>Ответы на частые вопросы</h2>
         <div class="faq-container">
@@ -208,7 +237,7 @@
 
             <div class="faq-item">
                 <div class="faq-question">
-                    <h4>Безопасна ли химия для детей и аллергиков?</h4>
+                    <h4>Безопасна ли химия для детей, аллергиков и животных?</h4>
                     <span class="faq-icon"></span>
                 </div>
                 <div class="faq-answer">

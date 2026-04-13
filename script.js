@@ -196,7 +196,7 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
 
         // Собираем ссылку "по кусочкам" с небольшой магией
         // const scriptURL = `https://${_0x5a12[8]}${_0x5a12[7]}${(_0x5a12[6] + _0x5a12[5] + _0x5a12[4] + _0x5a12[3] + _0x5a12[2] + _0x5a12[1]).replace(/\s/g, '')}${_0x5a12[0]}`;
-        const scriptURL = `https://script.google.com/macros/s/AKfycby8uqu5zq4g8ff9mUBxoy3nao3TygOEHPZNyAYJihdmvzvbBBVSHKVMyRCisfp9hC5u-A/exec`;
+        const scriptURL = `https://script.google.com/macros/s/AKfycbxaMYP3I4FCaJvybO61Xo3EnJCMAtKk_5kEY-AN9xbUXF5vmSukHEzNwLgkQmZFNuQg/exec`;
         // ================================================================
         // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
         // Если подсказки адреса перестали работать:
@@ -319,7 +319,7 @@ function renderPreviews() {
                 return null;
             };
             const prev = findNearby(-1), next = findNearby(1);
-            let advice = "<b>Ближайшие свободные даты:</b><br><div style='margin-top:15px; display:flex; gap:10px; justify-content:center;'>";
+            let advice = "<b>Ближайшие даты со свободными слотами:</b><br><div style='margin-top:15px; display:flex; gap:10px; justify-content:center;'>";
             if (prev) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${prev.raw}')">⬅️ ${prev.nice}</button>`;
             if (next) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${next.raw}')">${next.nice} ➡️</button>`;
             advice += "</div>";
@@ -375,7 +375,7 @@ function renderPreviews() {
     }
 
     if (mTitle) mTitle.textContent = title;
-    if (mText) mText.textContent = text;
+    if (mText) mText.innerHTML = text;
     if (mExtra) mExtra.innerHTML = extraHtml;
 
     if (mOrder) {
@@ -986,7 +986,10 @@ function renderPlaceholder(orderNum, statusText, price = "") {
             <p style="font-size: 15px; color: #999; margin-top: 15px;">
                 ${fullSubmitted 
                     ? 'Мастер приедет точно в срок. <br>При изменении планов, пожалуйста, сообщите нам.' 
-                    : `Мастер рассчитывает стоимость по вашим фото. <br>Информация о цене скоро появится прямо здесь.`}
+                    : (finalPrice 
+                        ? 'Стоимость рассчитана! <br>Для оформления заказа нажмите кнопку выше.' 
+                        : 'Мастер рассчитывает стоимость по вашим фото. <br>Информация о цене скоро появится прямо здесь.')
+                }
             </p>
         </div>
     `;
@@ -1072,5 +1075,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.classList.add('active');
             }
         });
+    });
+});
+
+
+
+// ЛОГИКА ШАПКИ И МЕНЮ
+const header = document.querySelector('.header');
+const burgerBtn = document.getElementById('burgerBtn');
+const navMenu = document.getElementById('navMenu');
+const mobileOverlay = document.getElementById('mobileOverlay');
+const navLinks = document.querySelectorAll('.nav-link, .btn-small');
+
+// 1. Изменение шапки при скролле
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
+
+// 2. Открытие/закрытие меню
+const toggleMenu = () => {
+    burgerBtn.classList.toggle('active');
+    navMenu.classList.toggle('active');
+    mobileOverlay.classList.toggle('active');
+    document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+};
+
+burgerBtn.addEventListener('click', toggleMenu);
+mobileOverlay.addEventListener('click', toggleMenu);
+
+// 3. Закрытие при клике на ссылку (для мобилок)
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        if (navMenu.classList.contains('active')) toggleMenu();
     });
 });
