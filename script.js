@@ -491,13 +491,11 @@ function renderPreviews() {
     // 1. ОПРЕДЕЛЯЕМ РЕЖИМ (по видимости поля адреса)
     const addressField = document.getElementById('address');
     const isActuallyFull = addressField && addressField.offsetParent !== null;
+    const hasExistingOrder = localStorage.getItem('cached_order'); // ДОБАВЛЕНО для точной проверки
 
-    // 2. ВАЛИДАЦИЯ
+    // 2. БЕЗОПАСНАЯ ВАЛИДАЦИЯ ЧЕРЕЗ JS
     if (!isActuallyFull) {
         // РЕЖИМ LIGHT (Короткая форма)
-        const hasExistingOrder = localStorage.getItem('cached_order');
-        
-        // Если это новый заказ (нет номера в памяти) — фото обязательны
         if (!hasExistingOrder && selectedFiles.length === 0) {
             alert("Пожалуйста, прикрепите фото мебели для оценки стоимости!");
             return;
@@ -505,11 +503,10 @@ function renderPreviews() {
     } else {
         // РЕЖИМ FULL (Полная форма)
         const photoInput = document.getElementById('image');
-        // Проверяем: скрыто ли поле? (если заказан LIGHT, оно будет none)
         const isPhotoGroupHidden = photoInput && photoInput.closest('.input-group').style.display === 'none';
 
-        // Просим фото ТОЛЬКО если поле НЕ скрыто
-        if (!isPhotoGroupHidden && selectedFiles.length === 0) {
+        // Просим фото ТОЛЬКО если это новый заказ, поле видно на экране и файлов еще нет
+        if (!hasExistingOrder && !isPhotoGroupHidden && selectedFiles.length === 0) {
             alert("Пожалуйста, прикрепите фото мебели!");
             return;
         }
@@ -534,7 +531,6 @@ function renderPreviews() {
     if (status) status.textContent = "⏳ Соединение с сервером...";
 
     try {
-        // Разблокируем поля для FormData
         const allInputs = currentForm.querySelectorAll('input, select, textarea');
         allInputs.forEach(el => el.disabled = false);
 
@@ -542,7 +538,7 @@ function renderPreviews() {
         const data = Object.fromEntries(formData.entries());
         data.session_id = currentSessionId;
 
-        // 5. СБОРКА ДАННЫХ (ЕДИНЫЙ БЛОК)
+        // 5. СБОРКА ДАННЫХ
         if (!isActuallyFull) {
             data.form_type = 'LIGHT';
             data.is_update = "false";
@@ -550,16 +546,12 @@ function renderPreviews() {
         } else {
             data.form_type = 'FULL';
             data.is_update = "true";
-            
-            // Наследование номера и цены
             data.order_number = localStorage.getItem('cached_order') || "";
             data.price = localStorage.getItem('cached_price') || "";
 
-            // Сборка адреса (улица + дом + квартира)
             const flatVal = document.getElementById('flat')?.value.trim() || "";
             data.address = flatVal ? `${data.address}, кв/оф: ${flatVal}` : data.address;
             
-            // Дата и время
             const hourVal = document.getElementById('hours')?.value || "00";
             const minVal = document.getElementById('minutes')?.value || "00";
             data.time = `${hourVal}:${minVal}`;
@@ -592,18 +584,19 @@ function renderPreviews() {
             finalOrder || "в обработке"
         );
 
-        // 10. ФИНАЛЬНЫЕ ФЛАГИ
+        // 10. ФИНАЛЬНЫЕ ФЛАГИ И ПОЛНАЯ ОЧИСТКА
         if (isActuallyFull) {
-            // Если отправили FULL - блокируем всё
             localStorage.setItem('full_submitted', 'true');
-        } else {
-            // Если LIGHT - просто чистим форму для следующего шага
-            currentForm.reset();
-            selectedFiles = [];
-            if (typeof renderPreviews === 'function') renderPreviews();
         }
+        
+        // ТЕПЕРЬ ВСЕГДА ОЧИЩАЕМ ФОРМУ ПОСЛЕ УСПЕШНОЙ ОТПРАВКИ (ИСКЛЮЧАЕТ БАГ С ЗАВИСШИМИ ФОТО)
+        currentForm.reset();
+        selectedFiles = []; // Обнуляем массив
+        const photoInp = document.getElementById('image');
+        if (photoInp) photoInp.value = ''; // Сбрасываем физический инпут
+        if (typeof renderPreviews === 'function') renderPreviews(); // Очищаем экран от миниатюр
 
-        // ВЫЗЫВАЕМ ПЕРЕКЛЮЧЕНИЕ (Оно увидит флаг full_submitted и покажет заглушку)
+        // ВЫЗЫВАЕМ ПЕРЕКЛЮЧЕНИЕ
         switchForm(isActuallyFull ? 'FULL' : 'LIGHT');
 
     } catch (err) {
@@ -814,6 +807,18 @@ function switchForm(mode) {
             });
         }
     });
+
+    const photoInput = document.getElementById('image');
+    const photoGroup = photoInput ? photoInput.closest('.input-group') : null;
+    
+    if (photoGroup) {
+        // Если перешли к полной форме с уже начатым заказом - прячем фото
+        if (isFull && activeOrder) {
+            photoGroup.style.display = 'none'; 
+        } else {
+            photoGroup.style.display = 'block';
+        }
+    }
 }
 
 function updateTabVisuals(mode) {
@@ -863,7 +868,7 @@ async function checkActiveOrder(force = false) {
     const photoGroup = photoInput ? photoInput.closest('.input-group') : null;
 
     if (!sessionId && !orderNumber) {
-        if (photoInput) photoInput.required = true;
+        // УБРАНО: photoInput.required = true; - Полагаемся только на JS валидацию
         if (photoGroup) photoGroup.style.display = 'block';
         return;
     }
@@ -877,7 +882,6 @@ async function checkActiveOrder(force = false) {
             let status = result.status;
             if (status === "Спам" || status === "Бан") status = "Новый";
 
-            // ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ ЗДЕСЬ (ВАЖНО ДЛЯ CHROME)
             const overlay = document.getElementById('status-overlay');
             const isOverlayVisible = overlay && overlay.style.display === 'block';
             const isFullTabActive = document.getElementById('tab-full')?.classList.contains('active');
@@ -885,7 +889,8 @@ async function checkActiveOrder(force = false) {
             if (status === "Выполнен" || status === "Отменён") {
                 const keys = ['cached_order','cached_status','cached_price','full_submitted','cached_address','cached_date','cached_time'];
                 keys.forEach(k => localStorage.removeItem(k));
-                if (photoInput) photoInput.required = true;
+                
+                // УБРАНО: photoInput.required = true;
                 if (photoGroup) photoGroup.style.display = 'block';
                 switchForm('LIGHT');
                 return false;
@@ -902,10 +907,9 @@ async function checkActiveOrder(force = false) {
             if (fullSubmitted || isOverlayVisible) {
                 renderPlaceholder(result.orderNumber, status, result.price || "", result.address, result.date, result.time);
             } else {
-                // Если мы в полной форме и фото уже были в LIGHT
                 if (photoInput) {
                     photoInput.required = false; 
-                    photoInput.removeAttribute('required'); // Дублируем для Chrome
+                    photoInput.removeAttribute('required'); 
                 }
                 if (photoGroup) photoGroup.style.display = 'none';
 
