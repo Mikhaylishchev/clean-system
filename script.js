@@ -1,3 +1,5 @@
+const GOOGLE_TOKEN = '4f9c8e7a2b6d1f3c9a0e5d7b8c1f2a6e3d9b7c0f1a2e4d6c8b5f3a7e9c2d1b6';
+
 // Генерируем или достаем ID сессии (живет, пока не очистят кэш)
 let currentSessionId = localStorage.getItem('service_session_id');
 if (!currentSessionId) {
@@ -196,7 +198,7 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
 
         // Собираем ссылку "по кусочкам" с небольшой магией
         // const scriptURL = `https://${_0x5a12[8]}${_0x5a12[7]}${(_0x5a12[6] + _0x5a12[5] + _0x5a12[4] + _0x5a12[3] + _0x5a12[2] + _0x5a12[1]).replace(/\s/g, '')}${_0x5a12[0]}`;
-        const scriptURL = `https://script.google.com/macros/s/AKfycbxaMYP3I4FCaJvybO61Xo3EnJCMAtKk_5kEY-AN9xbUXF5vmSukHEzNwLgkQmZFNuQg/exec`;
+        const scriptURL = `https://script.google.com/macros/s/AKfycbzkY8GkMkQu_6siOBSGyEFDIPkEU9sQL-g_ItZYo8zl7EruucpewxTJ-3bDwKxYDV0QHw/exec`;
         // ================================================================
         // БЕЗОПАСНОСТЬ: ТОКЕН DADATA (API KEY)
         // Если подсказки адреса перестали работать:
@@ -296,7 +298,7 @@ function renderPreviews() {
     }, 400);
 
     try {
-        const response = await fetch(`${scriptURL}?t=${Date.now()}`);
+        const response = await fetch(`${scriptURL}?action=get_slots&token=${GOOGLE_TOKEN}&t=${Date.now()}`);
         const bookedSlots = await response.json();
         
         // 2. ОСТАНАВЛИВАЕМ таймер анимации, когда данные пришли!
@@ -564,9 +566,31 @@ function renderPreviews() {
 
         // 7. ОТПРАВКА
         const bodyData = new URLSearchParams();
-        for (const key in data) bodyData.append(key, data[key] || "");
+        bodyData.append('token', GOOGLE_TOKEN);
 
-        fetch(scriptURL, { method: 'POST', body: bodyData, mode: 'no-cors' });
+        for (const key in data) {
+            bodyData.append(key, data[key] || "");
+        }
+
+        try {
+            // Отправляем через no-cors, чтобы избежать красных ошибок в консоли
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: bodyData
+            });
+
+            // Даем Google 1.5 секунды на запись и запускаем проверку
+            setTimeout(() => {
+                checkActiveOrder(true);
+            }, 1500);
+
+            form.reset();
+
+        } catch (error) {
+            console.error("Ошибка отправки:", error);
+            showModal("Ошибка", "Не удалось отправить заявку. Пожалуйста, попробуйте еще раз или свяжитесь со мной по телефону.", "error");
+        }
 
         // 8. СИНХРОНИЗАЦИЯ
         if (status) status.textContent = "🔍 Обновляем статус...";
@@ -859,7 +883,7 @@ function goToForm(mode) {
 
 
 // ================= ПРОВЕРКА АКТИВНОГО ЗАКАЗА (ГИБРИДНАЯ) =================
-async function checkActiveOrder(force = false) {
+async function checkActiveOrder(isNewSubmission = false, retries = 3) {
     const sessionId = localStorage.getItem('service_session_id');
     const orderNumber = localStorage.getItem('cached_order');
     const fullSubmitted = localStorage.getItem('full_submitted') === 'true';
@@ -867,14 +891,17 @@ async function checkActiveOrder(force = false) {
     const photoInput = document.getElementById('image');
     const photoGroup = photoInput ? photoInput.closest('.input-group') : null;
 
-    if (!sessionId && !orderNumber) {
-        // УБРАНО: photoInput.required = true; - Полагаемся только на JS валидацию
-        if (photoGroup) photoGroup.style.display = 'block';
-        return;
-    }
+    if (!sessionId) return;
+
+    // Включаем "заглушку" (скрываем форму, показываем блок статуса)
+    const formContainer = document.getElementById('order-form-container');
+    const statusContainer = document.getElementById('order-status-container');
+    if (formContainer) formContainer.style.display = 'none';
+    if (statusContainer) statusContainer.style.display = 'block';
 
     try {
-        const url = `${scriptURL}?action=check_status&service_session_id=${sessionId}&order_number=${orderNumber || ''}&t=${Date.now()}`;
+        // Добавляем GOOGLE_TOKEN и action=check_status
+        const url = `${scriptURL}?action=check_status&token=${GOOGLE_TOKEN}&service_session_id=${sessionId}&order_number=${orderNumber || ''}&t=${Date.now()}`;
         const response = await fetch(url);
         const result = await response.json();
 
@@ -886,14 +913,24 @@ async function checkActiveOrder(force = false) {
             const isOverlayVisible = overlay && overlay.style.display === 'block';
             const isFullTabActive = document.getElementById('tab-full')?.classList.contains('active');
 
+            // Если заказ завершен или отменен — сбрасываем всё
             if (status === "Выполнен" || status === "Отменён") {
                 const keys = ['cached_order','cached_status','cached_price','full_submitted','cached_address','cached_date','cached_time'];
                 keys.forEach(k => localStorage.removeItem(k));
                 
-                // УБРАНО: photoInput.required = true;
                 if (photoGroup) photoGroup.style.display = 'block';
+                if (photoInput) photoInput.required = true;
                 switchForm('LIGHT');
                 return false;
+            }
+
+            // Если это только что отправленная заявка, которой еще не было в памяти — показываем модалку
+            if (isNewSubmission && !orderNumber) {
+                showModal(
+                    "Заявка принята!",
+                    `Ваш заказ <b>№${result.orderNumber}</b> успешно создан. Мастер свяжется с вами в течение 15 минут.`,
+                    "success"
+                );
             }
 
             // Обновляем данные в памяти
@@ -904,8 +941,11 @@ async function checkActiveOrder(force = false) {
             localStorage.setItem('cached_date', result.date || "");
             localStorage.setItem('cached_time', result.time || "");
 
+            // Логика отображения: либо заглушка (placeholder), либо переключение на FULL форму
             if (fullSubmitted || isOverlayVisible) {
-                renderPlaceholder(result.orderNumber, status, result.price || "", result.address, result.date, result.time);
+                if (typeof renderPlaceholder === 'function') {
+                    renderPlaceholder(result.orderNumber, status, result.price || "", result.address, result.date, result.time);
+                }
             } else {
                 if (photoInput) {
                     photoInput.required = false; 
@@ -913,13 +953,25 @@ async function checkActiveOrder(force = false) {
                 }
                 if (photoGroup) photoGroup.style.display = 'none';
 
+                // Если мы еще не на вкладке FULL, принудительно переключаем
                 if (!isOverlayVisible && !isFullTabActive) {
                     switchForm('FULL');
                 }
             }
             return true;
+
+        } else if (isNewSubmission && retries > 0) {
+            // Если заявка новая, но Google еще не обновил таблицу — пробуем снова через 2 сек
+            console.log(`Заявка не найдена, пробуем еще раз... Попыток осталось: ${retries}`);
+            setTimeout(() => checkActiveOrder(true, retries - 1), 2000);
+        } else if (isNewSubmission) {
+            // Если все попытки исчерпаны, а номера нет — просто подтверждаем успех
+            showModal("Заявка принята!", "Ваша заявка успешно отправлена! Мастер скоро свяжется с вами.", "success");
         }
-    } catch (e) { console.error("Ошибка синхронизации:", e); }
+
+    } catch (e) { 
+        console.error("Ошибка синхронизации:", e); 
+    }
     return false;
 }
 
