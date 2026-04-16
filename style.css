@@ -185,6 +185,15 @@
         width: 100%;
     }
 
+    .nav-link:first-child{
+        padding-top: 0;
+    }
+
+    .nav-link:last-child {
+        margin-top: 20px;
+        margin-left: 10px;
+    }
+
     .tab-btn.active.nav-link {
         max-height: 50px;
         width: 80%;
@@ -221,6 +230,9 @@
             z-index: 1;
             border-radius: 0 0 0 40px;
         }
+        .hero-bg-image img {
+            border-radius: 0 0 0 40px;
+        }
         .hero-content {
             position: relative;
             z-index: 3;
@@ -236,14 +248,20 @@
             display: inline-flex; align-items: center; background: rgba(255,255,255,0.9);
             color: var(--primary); border-radius: 30px;
             font-size: large; font-weight: 700; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            z-index: 1100;
         }
         .trust-badge a {
             text-decoration: none;
             color: var(--accent);
             padding: 10px 20px;
         }
-        .hero h1 { font-size: 42px; margin-bottom: 20px; color: var(--text-dark); }
+        .hero h1 { font-size: clamp(1.5rem, 1rem + 5vw, 3rem); margin-bottom: 20px; color: var(--text-dark); }
         .hero p { font-size: 18px; color: var(--text-light); margin-bottom: 30px; line-height: 1.6; font-weight: 500;}
+        .hero .safe { 
+            color: var(--primary);
+            text-decoration: underline;
+            line-height: 90px;
+        }
         .promo-banner {
             background: linear-gradient(135deg, var(--accent), #ff6b81);
             color: var(--white); padding: 14px 24px; border-radius: 12px;
@@ -283,7 +301,7 @@
             .hero { padding-top: 0; }
             .hero-bg-image { left: auto; width: 60%; }
             .hero-content { margin: 0; margin-left: auto; text-align: left; padding: 0 40px; margin-left: 5%; }
-            .hero h1 { font-size: 54px; }
+            /* .hero h1 { font-size: 54px; } */
             .hero p { font-size: 20px; max-width: 480px;}
             .hero-buttons { flex-direction: row; max-width: 500px; }
             .hero-buttons .btn { width: auto; }
@@ -619,6 +637,13 @@
 @media (max-width: 768px) {
     .faq-question { padding: 20px; }
     .faq-question h4 { font-size: 16px; }
+
+    .reviews-container > *:nth-child(n + 5) {
+        display: none;
+    }
+    .reviews-container {
+        gap: 5px;
+    }
 }
 
 
@@ -695,10 +720,116 @@
 }
 
 /* Адаптив для маленьких экранов */
+
+
+
 @media (max-width: 480px) {
     .consent-block label {
         font-size: 12px;
     }
+
+    .hero {
+        padding: 0;
+        margin: 0;
+        height: 101vh;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: center;
+        align-content: center;
+    }
+
+    .hero .safe{
+        color: var(--bg-body);
+    }
+
+    .hero-content {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: center;
+        align-content: center;
+    }
+
+    .hero-buttons {
+        width: 80%;
+    }
+    
+    .hero-buttons .btn-outline  {
+        background: var(--bg-body);
+        color: var(--primary);
+    }
+
+    .tab-btn.active.nav-link {
+        max-height: 50px;
+        width: 80%;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .trust-badge {
+        width: 50%;
+        margin-right: auto;
+        font-size: small;
+        margin-left: 20px;
+    }
+
+    .hero h1 {
+        color: var(--bg-surface);
+    }
+
+    .hero p {
+        color: var(--bg-surface);
+    }
+
+    .trust-badge {
+        width: 75%;
+        font-size: middle;
+        z-index: 1101;
+            
+    }
+}
+
+@media only screen and (max-width: 375px) {
+    .hero-content{
+        flex-direction: row;
+    }
+
+    .hero h1 {
+        font-size: 1.7rem;
+        margin-top: 20px;
+    }
+    .hero-buttons{ 
+        gap: 5px;
+        width: 70%;
+    }
+    .hero-buttons .btn{
+        font-size: 13px;
+    }
+
+    .hero .safe { 
+        color: var(--bg-body);
+        text-decoration: underline;
+        line-height: normal;
+    }
+    .promo-banner {
+        width: 50%;
+        font-size:10px;
+        margin-bottom: 10px;
+        padding: 5px;
+    }
+
+    .trust-badge {
+        font-size: smaller;
+        width: 50%;
+        margin-top: 50px;
+    }
+
+    
 }
         
         @media (min-width: 768px) {
@@ -706,6 +837,9 @@
             .price-grid { grid-template-columns: repeat(2, 1fr); }
             .form-grid { grid-template-columns: 1fr 1fr; }
             .full-width { grid-column: span 2; }
+
+
+            
         }
 
         /* Модальное окно и DaData */
