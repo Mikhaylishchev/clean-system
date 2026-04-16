@@ -75,7 +75,7 @@
             <a href="#how-i-do" class="nav-link">Как я работаю</a>
             <a href="#reviews-container-wrapper" class="nav-link">Отзывы</a>
             <a href="#faq" class="nav-link">Частые вопросы</a>
-            <a href="#order-form" onclick="goToForm('FULL')" class="tab-btn active">Заказать</a>
+            <a href="#order-form" onclick="goToForm('FULL', event)" class="tab-btn active nav-link">Заказать</a>
         </nav>
 
         <button class="burger" id="burgerBtn" aria-label="Меню">
@@ -100,13 +100,13 @@
             <p>Частный мастер Сергей. Спасаю диваны и матрасы от пятен, запахов и грязи. 100% безопасно для детей и животных.</p>
             <div class="promo-banner">🔥 ЧИСТКА ДО 4 ПОДУШЕК БЕСПЛАТНО</div>
             <div class="hero-buttons">
-                <button onclick="goToForm('LIGHT')" class="btn">
+                <button onclick="goToForm('LIGHT', event)" class="btn">
                     Рассчитать стоимость
                 </button>
 
                 <a href="#prices" class="btn btn-outline">Смотреть прайс-лист</a>
 
-                <button onclick="goToForm('FULL')" class="btn btn-order">
+                <button onclick="goToForm('FULL', event)" class="btn btn-order">
                     Оформить заявку
                 </button>
             </div>
@@ -146,7 +146,6 @@
         </div>
     </section>
 
-    <div id="how-i-do">
     <!-- ЭТАПЫ РАБОТЫ -->
     <section id="how-i-do" class="container reveal">
         <h2>Как я спасаю вашу мебель</h2>
@@ -288,9 +287,8 @@
         </div>
     </div>
 </section>
-
     <!-- СЕКЦИЯ ДЛЯ ФОРМЫ -->
-    <section class="form-section reveal delay-1" id="form">
+    <section class="form-section reveal delay-1" id="form-section">
         <div class="container">
     <div id="form-container" class="form-container">
     <div class="form-tabs">

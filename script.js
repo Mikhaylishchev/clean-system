@@ -286,11 +286,11 @@ function renderPreviews() {
 
         const getLocalDateStr = () => new Date().toISOString().split('T')[0];
 
-        async function updateAvailableHours() {
+        async function updateAvailableHours(silent = false) {
     const selectedDate = dateInput.value;
     if (!selectedDate) return;
 
-    // 1. Запускаем анимацию загрузки (бегающие точки)
+    // 1. Сразу определяем интервал анимации
     let dots = "";
     const loadingInterval = setInterval(() => {
         dots = dots.length >= 3 ? "" : dots + ".";
@@ -301,14 +301,12 @@ function renderPreviews() {
         const response = await fetch(`${scriptURL}?action=get_slots&token=${GOOGLE_TOKEN}&t=${Date.now()}`);
         const bookedSlots = await response.json();
         
-        // 2. ОСТАНАВЛИВАЕМ таймер анимации, когда данные пришли!
+        // ОСТАНАВЛИВАЕМ таймер сразу после получения данных
         clearInterval(loadingInterval);
-        hourSelect.innerHTML = '<option value="">Час</option>';
         
         const isFullDayBlocked = bookedSlots.some(slot => slot.date === selectedDate && slot.time === "Весь день");
         
         if (isFullDayBlocked) {
-            const formattedSelectedDate = new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
             const findNearby = (dir) => {
                 let cur = new Date(selectedDate);
                 for (let i = 1; i <= 10; i++) {
@@ -320,37 +318,83 @@ function renderPreviews() {
                 }
                 return null;
             };
-            const prev = findNearby(-1), next = findNearby(1);
-            let advice = "<b>Ближайшие даты со свободными слотами:</b><br><div style='margin-top:15px; display:flex; gap:10px; justify-content:center;'>";
-            if (prev) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${prev.raw}')">⬅️ ${prev.nice}</button>`;
-            if (next) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${next.raw}')">${next.nice} ➡️</button>`;
-            advice += "</div>";
-            showModal("День занят", `Извините, на <b>${formattedSelectedDate}</b> запись невозможна.`, "error", advice);
-            dateInput.value = ""; return;
+
+            const next = findNearby(1);
+            const prev = findNearby(-1);
+
+            if (silent === true) {
+                // Если режим тихий — переключаем дату и выходим, 
+                // НОВАЯ ПРОВЕРКА запустится сама через рекурсию
+                if (next) {
+                    dateInput.value = next.raw;
+                    return updateAvailableHours(true); 
+                }
+            } else {
+                // Если пользователь сам выбрал дату — показываем модалку
+                const formattedDate = new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+                let advice = "<div style='margin-top:15px; display:flex; gap:10px; justify-content:center;'>";
+                if (prev) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${prev.raw}')">⬅️ ${prev.nice}</button>`;
+                if (next) advice += `<button type="button" class="date-suggest-btn" onclick="selectSuggestedDate('${next.raw}')">${next.nice} ➡️</button>`;
+                advice += "</div>";
+                
+                showModal("День занят", `Извините, на <b>${formattedDate}</b> запись невозможна.<div id="modal-extra" style="margin-top: 20px; color: #000;"><b>Ближайшие даты со свободными слотами:</b><br></div>`, "error", advice);
+                dateInput.value = "";
+                hourSelect.innerHTML = '<option value="">Выберите дату</option>';
+                return;
+            }
         }
 
-        const now = new Date(); const todayStr = getLocalDateStr(); const cutoffHour = now.getHours() + 2;
+        // 2. ОСТАНАВЛИВАЕМ таймер, если день не заблокирован и мы идем дальше
+        clearInterval(loadingInterval);
+        hourSelect.innerHTML = '<option value="">Час</option>';
+
+        const now = new Date(); 
+        const todayStr = getLocalDateStr(); 
+        const cutoffHour = now.getHours() + 2;
+        
+        let hasAvailable = false;
+
         for (let i = 8; i <= 20; i++) {
             let hStr = i.toString().padStart(2, '0');
+            // Проверка: время должно быть либо в будущем (если сегодня), либо в любой другой будущий день
             if (selectedDate > todayStr || i >= cutoffHour) {
                 const isBooked = bookedSlots.some(slot => {
                     if (slot.date !== selectedDate) return false;
-                    const bookedHour = parseInt(slot.time.split(':')[0]);
+                    const bookedTime = String(slot.time);
+                    if (bookedTime === "Весь день") return true;
+                    const bookedHour = parseInt(bookedTime.split(':')[0]);
+                    // Логика интервала (час до и час после)
                     return (i >= bookedHour - 1 && i <= bookedHour + 1);
                 });
+
                 let opt = document.createElement('option');
-                opt.value = hStr; opt.textContent = isBooked ? `${hStr} (занято)` : `${hStr}`;
-                if (isBooked) { opt.disabled = true; opt.style.color = "#a0aec0"; }
+                opt.value = hStr;
+                opt.textContent = isBooked ? `${hStr} (занято)` : `${hStr}`;
+                
+                if (isBooked) { 
+                    opt.disabled = true; 
+                    opt.style.color = "#a0aec0"; 
+                } else {
+                    hasAvailable = true;
+                }
                 hourSelect.appendChild(opt);
             }
         }
-        if (hourSelect.options.length <= 1) hourSelect.innerHTML = '<option value="">Нет свободных слотов</option>';
+
+        if (!hasAvailable) {
+            hourSelect.innerHTML = '<option value="">Нет свободных слотов</option>';
+        }
         
     } catch (e) { 
-        // 3. ОСТАНАВЛИВАЕМ таймер, если произошла ошибка сети
         clearInterval(loadingInterval);
-        hourSelect.innerHTML = '<option value="">Ошибка</option>'; 
+        hourSelect.innerHTML = '<option value="">Ошибка сети</option>'; 
         console.error("Ошибка загрузки слотов:", e);
+    }
+
+    const photoInput = document.getElementById('image');
+    if (photoInput && photoInput.files.length > 0) {
+        // Если файлы есть, снимаем ошибку "required" принудительно
+        photoInput.setCustomValidity(""); 
     }
 }
 
@@ -487,6 +531,7 @@ function renderPreviews() {
     e.preventDefault();
 
     const currentForm = e.target;
+    const photoInput = document.getElementById('image'); // ПЕРЕНЕСЛИ СЮДА
     const status = document.getElementById('status');
     const btn = document.getElementById('submit-btn');
     
@@ -564,6 +609,10 @@ function renderPreviews() {
             data.filesJSON = JSON.stringify(await getFilesData(selectedFiles));
         }
 
+        if (photoInput.files.length > 0) {
+            photoInput.required = false; // Если файлы физически есть, выключаем требование браузера
+        }
+
         // 7. ОТПРАВКА
         const bodyData = new URLSearchParams();
         bodyData.append('token', GOOGLE_TOKEN);
@@ -601,7 +650,7 @@ function renderPreviews() {
 
         // 9. ПОКАЗ МОДАЛКИ
         showModal(
-            "Заявка отправлена!", 
+            "Спасибо!<br>Заявка отправлена!", 
             isActuallyFull ? "Мастер свяжется с вами для подтверждения заказа." : "Мастер рассчитает стоимость, и она появится здесь.", 
             "success", 
             "", 
@@ -719,14 +768,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof checkActiveOrder === 'function') {
         checkActiveOrder();
     }
+
+    const todayStr = getLocalDateStr();
+    dateInput.value = todayStr;
+
+    // Запускаем ТИХУЮ проверку. 
+    // Она сама переставит дату на завтра, если сегодня — "Весь день" занято.
+    updateAvailableHours(true);
     
     // Очистим старые флаги на всякий случай, они нам больше не нужны
     sessionStorage.removeItem('force_show_form');
     sessionStorage.removeItem('target_mode');
 });
 
-        dateInput.min = getLocalDateStr(); dateInput.value = getLocalDateStr();
-        dateInput.addEventListener('change', updateAvailableHours); updateAvailableHours();
+        dateInput.min = getLocalDateStr(); 
+        const todayStr = getLocalDateStr();
+        dateInput.value = todayStr;
+        dateInput.addEventListener('change', () => {
+            updateAvailableHours(false); 
+        });
         document.addEventListener('click', (e) => { if (e.target !== addressInput) suggestionsBox.style.display = 'none'; });
 
 
@@ -859,12 +919,12 @@ function updateTabVisuals(mode) {
     if (submitBtn) submitBtn.textContent = isFull ? 'Отправить' : 'Рассчитать стоимость';
 }
 
-function goToForm(mode) {
+/* function goToForm(mode) {
     // 1. Сначала переключаем форму в нужный режим (используем твою функцию)
     switchForm(mode);
     
     // 2. Находим элемент формы
-    const formSection = document.getElementById('form');
+    const formSection = document.getElementById('form-section');
     
     // 3. Плавно скроллим к нему
     formSection.scrollIntoView({ 
@@ -879,6 +939,39 @@ function goToForm(mode) {
     setTimeout(() => {
         title.style.color = '';
     }, 1000);
+} */
+
+function goToForm(mode, event) {
+    // 1. Если передано событие клика — отменяем прыжок браузера
+    if (event) {
+        event.preventDefault();
+    }
+
+    // 2. Сначала переключаем форму
+    switchForm(mode);
+
+    // 3. Находим элементы
+    const formSection = document.getElementById('form-section');
+    const header = document.querySelector('.header'); // ЗАМЕНИТЕ на селектор вашей шапки (например, 'header' или '.top-nav')
+    
+    // Получаем высоту шапки динамически
+    const headerHeight = header ? header.offsetHeight : 0;
+    
+    // 4. Считаем позицию: (координата формы) + (текущий скролл) - (высота шапки) - (доп. отступ)
+    const elementPosition = formSection.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - 20;
+
+    // 5. Скроллим
+    window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+    });
+
+    // 6. Ваша анимация подсветки
+    const title = document.getElementById('form-title');
+    title.style.transition = 'color 0.3s ease';
+    title.style.color = 'var(--primary)';
+    setTimeout(() => { title.style.color = ''; }, 1000);
 }
 
 
@@ -1022,7 +1115,7 @@ function renderPlaceholder(orderNum, statusText, price = "") {
 
     overlay.innerHTML = `
         <div style="text-align: center; padding: 10px 0;">
-            <div style="font-size: 45px; margin-bottom: 10px;">${fullSubmitted ? '✅' : '⏱️'}</div>
+            <div style="font-size: 100px; margin-bottom: 10px;">${fullSubmitted ? '✅' : '⏱️'}</div>
             <h2 style="font-size: 22px; margin-bottom: 5px;">Заявка №${finalNum}</h2>
             <p style="color: #666; font-size: 14px;">Статус: <b style="color: var(--primary);">${statusText}</b></p>
             
@@ -1044,7 +1137,7 @@ function renderPlaceholder(orderNum, statusText, price = "") {
                     ? 'Мастер приедет точно в срок. <br>При изменении планов, пожалуйста, сообщите нам.' 
                     : (finalPrice 
                         ? 'Стоимость рассчитана! <br>Для оформления заказа нажмите кнопку выше.' 
-                        : 'Мастер рассчитывает стоимость по вашим фото. <br>Информация о цене скоро появится прямо здесь.')
+                        : 'Мастер рассчитывает стоимость по вашим фото. <br><b>Информация о цене скоро появится прямо здесь.</b>')
                 }
             </p>
         </div>
@@ -1094,21 +1187,32 @@ async function cancelOrder(orderNum) {
 }
 
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+    // 1. Сначала проверяем активный заказ (чтобы понять, какую форму показывать)
+    await checkActiveOrder();
+
+    // 2. Логика для телефона (твоя существующая)
     setTimeout(() => {
         const phone = document.getElementById('phone');
         if (phone && phone.value) {
             let digits = phone.value.replace(/\D/g, '');
-            // Если браузер вставил +7, превращаем в 8 для твоей маски
             if (digits.startsWith('7')) digits = '8' + digits.slice(1);
-            // Если цифр всё равно много — режем
             if (digits.length > 11) {
                 phone.value = digits.substring(0, 11);
-                // Имитируем событие ввода, чтобы маска перерисовалась
                 phone.dispatchEvent(new Event('input'));
             }
         }
-    }, 500); // Задержка 0.5 сек, чтобы маска успела загрузиться
+    }, 500);
+
+    // 3. ИНИЦИАЛИЗАЦИЯ ДАТЫ
+    // Проверяем, не установлена ли дата уже (например, если она пришла из кэша)
+    if (!dateInput.value) {
+        dateInput.value = getLocalDateStr();
+    }
+
+    // 4. ТИХИЙ ЗАПУСК СЛОТОВ
+    // Вызываем строго с true, чтобы не вылетала модалка при загрузке в выходной
+    updateAvailableHours(true);
 });
 
 
