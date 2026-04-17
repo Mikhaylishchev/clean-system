@@ -22,27 +22,55 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
 
 // 0. Анимации при скролле
         document.addEventListener("DOMContentLoaded", () => {
-            const observer = new IntersectionObserver((entries) => {
+            // === 1. ОБЫЧНЫЙ ОБСЕРВЕР ДЛЯ АНИМАЦИЙ (REVEAL) ===
+            const revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if(entry.isIntersecting) {
                         entry.target.classList.add('active');
-                        observer.unobserve(entry.target); 
+                        revealObserver.unobserve(entry.target); 
                     }
                 });
             }, { threshold: 0.1 });
             
             document.querySelectorAll('.reveal, .step-card, .price-card, .review-card').forEach(el => {
                 el.classList.add('reveal');
-                observer.observe(el);
+                revealObserver.observe(el);
             });
 
+            // === 2. НОВЫЙ ОБСЕРВЕР ДЛЯ ПОДСВЕТКИ МЕНЮ (SCROLLSPY) ===
+            const navLinks = document.querySelectorAll('.nav-link');
+            const scrollSpyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // Если секция зашла в "активную зону" (центр экрана)
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-scroll');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active-scroll');
+                            }
+                        });
+                    }
+                });
+            }, {
+                // Зона срабатывания: отступ сверху 20% и снизу 70%. 
+                // Это значит, что активной будет считаться секция в верхней части экрана
+                rootMargin: '-20% 0px -70% 0px' 
+            });
+
+            // Укажи здесь ID всех секций, которые есть в меню
+            const sectionsToWatch = ['results', 'prices', 'how-i-do', 'reviews-container-wrapper', 'faq', 'order-form'];
+            sectionsToWatch.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) scrollSpyObserver.observe(el);
+            });
+
+            // === 3. ОСТАЛЬНАЯ ЛОГИКА (ФОРМЫ И ДАННЫЕ) ===
             switchForm('LIGHT');
 
-            // 2. ПОДСТАВЛЯЕМ ДАННЫЕ, если они есть в памяти
             const savedName = localStorage.getItem('draft_name');
             const savedPhone = localStorage.getItem('draft_phone');
             
-            // Подставляем только если поле пустое, чтобы не перезаписывать то, что юзер пишет прямо сейчас
             if (savedName && !document.getElementById('name').value) {
                 document.getElementById('name').value = savedName;
             }
@@ -937,7 +965,7 @@ function updateTabVisuals(mode) {
     if (tabLight) tabLight.classList.toggle('active', !isFull);
     if (tabFull) tabFull.classList.toggle('active', isFull);
     
-    if (formTitle) formTitle.innerText = isFull ? 'Оформить заявку' : 'Оставить заявку';
+    if (formTitle) formTitle.innerText = isFull ? 'Оформить заявку' : 'Расчитать стоимость';
     if (submitBtn) submitBtn.textContent = isFull ? 'Отправить' : 'Рассчитать стоимость';
 }
 

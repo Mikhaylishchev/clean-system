@@ -26,6 +26,7 @@
         }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         section { padding: 80px 0; }
+        
         h1, h2, h3 { font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
         h2 { font-size: 38px; margin-bottom: 50px; text-align: center; }
         
@@ -98,11 +99,43 @@
 }
 
 .nav-link {
+    position: relative;
     text-decoration: none;
     color: var(--text-dark);
     font-weight: 600;
     font-size: 14px;
+    padding: 10px;
     transition: var(--transition);
+    -webkit-transition: var(--transition);
+    -moz-transition: var(--transition);
+    -ms-transition: var(--transition);
+    -o-transition: var(--transition);
+}
+
+/* Псевдоэлемент - линия под текстом */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px; /* Отступ линии от текста */
+    width: 0;
+    height: 5px;
+    background-color: var(--primary); /* Твой фирменный цвет */
+    transition: width 0.3s ease;
+}
+
+/* Состояние, когда секция активна (добавляется через JS) */
+.nav-link.active-scroll::after {
+    width: 100%;
+}
+
+/* Цвет текста активного пункта (по желанию) */
+.nav-link.active-scroll {
+    color: var(--primary);
+}
+
+.nav-link.tab-btn::after {
+    display: none;
 }
 
 .nav-link:hover { color: var(--primary); }
@@ -163,6 +196,9 @@
         gap: 5px;
     }
     
+    .nav-link::after {
+        bottom: 10px;
+    }
     
 
     .mobile-overlay {
@@ -731,6 +767,61 @@
     text-decoration: none;
 }
 
+/* Контейнер для строки адреса */
+.address-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Обертка адреса занимает все оставшееся место */
+.address-wrapper {
+    flex: 1; 
+    position: relative;
+}
+
+/* Поле квартиры остается фиксированным */
+#flat {
+    width: 120px; /* Немного уменьшил для мобильных */
+    flex-shrink: 0; /* Запрещаем сжиматься меньше указанной ширины */
+}
+
+/* Адаптив для совсем маленьких экранов */
+@media (max-width: 480px) {
+    .address-row {
+        flex-direction: column; /* На узких телефонах адрес над квартирой */
+    }
+    #flat {
+        width: 100%; /* На мобилках делаем во всю ширину */
+    }
+
+    #order-form input:not(#image), 
+    #order-form select {
+        height: 10px;
+    }
+
+
+    #order-form select {
+        -webkit-appearance: none;
+        appearance: none;
+        padding-top: 0;
+        padding-bottom: 0;
+        padding: 5px;
+    }
+
+    #image {
+        height: 100%;
+    }
+
+    #form-container {
+        padding: 30px;
+    }
+}
+
+
+
+
+
 /* Адаптив для маленьких экранов */
 
 
@@ -808,7 +899,7 @@
     }
 }
 
-@media only screen and (max-width: 375px) {
+@media only screen and (max-width: 360px) {
     .hero-content{
         flex-direction: row;
     }
@@ -823,6 +914,10 @@
     }
     .hero-buttons .btn{
         font-size: 13px;
+    }
+
+    .hero-content p {
+        font-size: small;
     }
 
     .hero .safe { 
@@ -844,6 +939,31 @@
     }
 
     
+    #order-form input:not(#image), 
+    #order-form select {
+        height: 10px;
+    }
+
+
+    #order-form select {
+        -webkit-appearance: none;
+        appearance: none;
+        padding-top: 0;
+        padding-bottom: 0;
+        padding: 5px;
+    }
+
+    #extra-fields-date {
+        gap: 10px !important; 
+    }
+
+    #image {
+        height: 100%;
+    }
+
+    #form-container {
+        padding: 10px;
+    }   
 }
         
         @media (min-width: 768px) {
@@ -863,7 +983,15 @@
         .order-num { font-size: 48px; font-weight: 800; color: var(--text-dark); margin: 15px 0; }
         
         .address-wrapper { position: relative; width: 100%; }
-        .address-row { display: flex; gap: 12px; }
+        .address-row { display: flex; gap: 10px; }
+        .address-row input:first-child {
+            flex: 0 0 70%; /* Не растет, не сжимается, база 70% */
+        }
+
+        .address-row input:last-child {
+            flex: 0 0 30%; /* Не растет, не сжимается, база 30% */
+        }
+
         .suggestions-container { position: absolute; top: 100%; left: 0; background: var(--bg-surface); border-radius: 16px; width: 100%; max-height: 220px; overflow-y: auto; z-index: 1000; box-shadow: var(--shadow-hover); display: none; margin-top: 8px; overflow: hidden; padding: 8px; }
         .suggestion-item { padding: 12px 16px; cursor: pointer; border-radius: 8px; font-size: 14px; transition: 0.2s; margin-bottom: 2px;}
         .suggestion-item:hover { background: var(--bg-body); color: var(--primary); font-weight: 500;}
@@ -971,4 +1099,40 @@
     background: var(--accent);
     color: white;
     transform: scale(1.1);
+}
+
+
+
+
+/* Полный сброс для мобильных селектов */
+#hours, #minutes, #service {
+    color: #1e293b !important; /* Насыщенный темный цвет */
+    background-color: #ffffff !important;
+    opacity: 1 !important;
+    -webkit-opacity: 1 !important;
+    
+    /* Исправляем высоту, чтобы текст не улетал вверх или вниз */
+    height: 56px !important; 
+    line-height: normal !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    
+    /* Сброс системных стилей iOS */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Специальный фикс для iOS: убираем серое размытие */
+select:-webkit-autofill,
+select:-webkit-autofill:hover, 
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #1e293b !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Убеждаемся, что опции внутри тоже имеют цвет */
+select option {
+    color: #1e293b !important;
+    background: #ffffff !important;
 }
