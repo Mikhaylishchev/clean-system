@@ -65,6 +65,8 @@
     backdrop-filter: blur(10px);
     padding: 12px 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+
+    
 }
 
 .header-container {
@@ -158,7 +160,10 @@
     .nav-menu.active { 
         right: 0;
         align-items: flex-start;
+        gap: 5px;
     }
+    
+    
 
     .mobile-overlay {
         position: fixed;
@@ -342,7 +347,13 @@
         /* ================= ПРАЙС-ЛИСТ ================= */
         .prices-section { background: var(--white); }
 
-        .tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px;  }
+        .tabs { 
+            display: flex; 
+            justify-content: center; 
+            gap: 12px; 
+            margin-bottom: 40px; 
+            flex-wrap: wrap;
+        }
         .tab-btn {
             background: transparent; 
             border: 1px solid #ddd; padding: 14px 28px;
@@ -371,6 +382,7 @@
             overflow-y: auto; overflow-x: hidden;
             border-radius: 16px; border: 1px solid #eee; background: #fff;
             padding: 20px;
+            scroll-behavior: smooth;
         }
         /* Кастомный скроллбар */
         .prices-wrapper::-webkit-scrollbar { width: 6px; }
@@ -769,6 +781,8 @@
         width: 80%;
         text-align: center;
         margin: 0 auto;
+        margin-left: 10px;
+        margin-top: 10px;
     }
 
     .trust-badge {

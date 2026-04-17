@@ -149,26 +149,48 @@ document.getElementById('phone').addEventListener('input', saveDraftData);
         document.getElementById('btn-prev').addEventListener('click', () => { currentSlide = currentSlide > 0 ? currentSlide - 1 : DATA.gallery.length - 1; updateCarousel(); });
 
         // РЕНДЕР ТАБОВ
-        const tabsContainer = document.getElementById('tabs-container');
-        const pricesContainer = document.getElementById('prices-container');
-        let isFirstTab = true;
-        for (const[key, label] of Object.entries(DATA.categories)) {
-            const btn = document.createElement('button');
-            btn.className = `tab-btn ${isFirstTab ? 'active' : ''}`; btn.textContent = label;
-            btn.onclick = () => switchTab(key, btn); tabsContainer.appendChild(btn);
+        // const tabsContainer = document.getElementById('tabs-container');
+        // const pricesContainer = document.getElementById('prices-container');
+        // let isFirstTab = true;
+        // for (const[key, label] of Object.entries(DATA.categories)) {
+        //     const btn = document.createElement('button');
+        //     btn.className = `tab-btn ${isFirstTab ? 'active' : ''}`; btn.textContent = label;
+        //     btn.onclick = () => switchTab(key, btn); tabsContainer.appendChild(btn);
 
-            const grid = document.createElement('div');
-            grid.className = `price-grid ${isFirstTab ? 'active' : ''}`; grid.id = `tab-${key}`;
-            DATA.prices[key].forEach((item, i) => {
-                grid.innerHTML += `<div class="price-card" style="transition-delay: ${i*0.05}s"><div class="price-info"><h4>${item.name}</h4><p  title="Примерное время выполнения работ"><span class="price-info-icon">⏱</span> ${item.time}</p></div><div class="price-value">${item.price}</div></div>`;
-            });
-            pricesContainer.appendChild(grid); isFirstTab = false;
-        }
+        //     const grid = document.createElement('div');
+        //     grid.className = `price-grid ${isFirstTab ? 'active' : ''}`; grid.id = `tab-${key}`;
+        //     DATA.prices[key].forEach((item, i) => {
+        //         grid.innerHTML += `<div class="price-card" style="transition-delay: ${i*0.05}s"><div class="price-info"><h4>${item.name}</h4><p  title="Примерное время выполнения работ"><span class="price-info-icon">⏱</span> ${item.time}</p></div><div class="price-value">${item.price}</div></div>`;
+        //     });
+        //     pricesContainer.appendChild(grid); isFirstTab = false;
+        // }
+        // function switchTab(tabId, btnElement) {
+        //     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        //     document.querySelectorAll('.price-grid').forEach(g => g.classList.remove('active'));
+        //     btnElement.classList.add('active'); document.getElementById(`tab-${tabId}`).classList.add('active');
+        // }
+
         function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.price-grid').forEach(g => g.classList.remove('active'));
-            btnElement.classList.add('active'); document.getElementById(`tab-${tabId}`).classList.add('active');
-        }
+    // 1. Убираем активные классы у всех кнопок и гридов
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.price-grid').forEach(g => g.classList.remove('active'));
+
+    // 2. Активируем нужные элементы
+    btnElement.classList.add('active');
+    const targetGrid = document.getElementById(`tab-${tabId}`);
+    if (targetGrid) {
+        targetGrid.classList.add('active');
+    }
+
+    // 3. СКРОЛЛ В НАЧАЛО: Возвращаем контейнер цен в самый верх
+    const container = document.getElementById('prices-container');
+    if (container) {
+        container.scrollTo({
+            top: 0,
+            behavior: 'smooth' // Мягкая прокрутка наверх
+        });
+    }
+}
 
         // // РЕНДЕР ЭТАПОВ И ОТЗЫВОВ
         // const stepsContainer = document.getElementById('steps-container');

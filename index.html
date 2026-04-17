@@ -130,21 +130,47 @@
 
     <!-- УСЛУГИ И ЦЕНЫ -->
     <section id="prices" class="prices-section">
-        <div class="container">
-            <h2>Услуги и цены</h2>
-            <div class="tabs" id="tabs-container">
-                <!-- Табы генерируются через JS -->
-            </div>
-            
-            <div class="prices-wrapper" id="prices-container">
-                <!-- Цены генерируются через JS -->
-                 
-            </div>
-            <p style="text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-light);">
-                *Минимальная сумма заказа: 2400 ₽. Выезд по Тюмени в день заказа.
-            </p>
+    <div class="container">
+        <h2>Услуги и цены</h2>
+        <div class="tabs" id="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('sofas', this)">Диваны</button>
+            <button class="tab-btn" onclick="switchTab('mattresses', this)">Кровати и матрасы</button>
+            <button class="tab-btn" onclick="switchTab('chairs', this)">Кресла и стулья</button>
+            <button class="tab-btn" onclick="switchTab('other', this)">Другое</button>
         </div>
-    </section>
+        
+        <div class="prices-wrapper" id="prices-container">
+            <div class="price-grid active" id="tab-sofas">
+                <div class="price-card"><div class="price-info"><h4>Химчистка дивана</h4><p>⏱ 2 ч 30 мин</p></div><div class="price-value">от&nbsp;1&nbsp;400&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Угловой диван</h4><p>⏱ 2 ч</p></div><div class="price-value">от&nbsp;2&nbsp;100&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Двухместный диван</h4><p>⏱ 1 ч</p></div><div class="price-value">от&nbsp;2&nbsp;000&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Трёхместный диван</h4><p>⏱ 1 ч 45 мин</p></div><div class="price-value">от&nbsp;2&nbsp;500&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Четырёхместный диван</h4><p>⏱ 1 ч 45 мин</p></div><div class="price-value">от&nbsp;3&nbsp;000&nbsp;₽</div></div>
+            </div>
+
+            <div class="price-grid" id="tab-mattresses">
+                <div class="price-card"><div class="price-info"><h4>Химчистка матраса</h4><p>⏱ 2 ч 30 мин</p></div><div class="price-value">от&nbsp;1&nbsp;100&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Спинка кровати</h4><p>⏱ 1 ч</p></div><div class="price-value">от&nbsp;800&nbsp;₽</div></div>
+            </div>
+
+            <div class="price-grid" id="tab-chairs">
+                <div class="price-card"><div class="price-info"><h4>Химчистка кресла</h4><p>⏱ 45 мин</p></div><div class="price-value">от&nbsp;700&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Химчистка стула</h4><p>⏱ 30 мин</p></div><div class="price-value">от&nbsp;300&nbsp;₽</div></div>
+            </div>
+
+            <div class="price-grid" id="tab-other">
+                <div class="price-card"><div class="price-info"><h4>Кожаная мебель</h4><p>⏱ 30 мин</p></div><div class="price-value">от&nbsp;1&nbsp;200&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Кухонный уголок</h4><p>⏱ 1 ч 15 мин</p></div><div class="price-value">от&nbsp;1&nbsp;300&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Удаление слаймов, маркеров</h4><p>⏱ 30 мин</p></div><div class="price-value">от&nbsp;350&nbsp;₽</div></div>
+                <div class="price-card"><div class="price-info"><h4>Сушка мебели</h4><p>⏱ 1 ч</p></div><div class="price-value">от&nbsp;500&nbsp;₽</div></div>
+            </div>
+        </div>
+        
+        <p style="text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-light);">
+            *Минимальная сумма заказа: 2400 ₽. Выезд по Тюмени в день заказа.
+        </p>
+    </div>
+</section>
 
     <!-- ЭТАПЫ РАБОТЫ -->
     <section id="how-i-do" class="container reveal">
