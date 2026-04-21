@@ -304,6 +304,9 @@
             color: var(--accent);
             padding: 10px 20px;
         }
+        .trust-badge span {
+            color: var(--primary);
+        }
         .hero h1 { font-size: clamp(1.5rem, 1rem + 5vw, 3rem); margin-bottom: 20px; color: var(--text-dark); }
         .hero p { font-size: 18px; color: var(--text-light); margin-bottom: 30px; line-height: 1.6; font-weight: 500;}
         .hero .safe { 
@@ -472,12 +475,22 @@
             gap: 24px; 
             padding: 10px;
         }
-        .step-card { 
-            background: var(--white); padding: 30px; border-radius: var(--radius); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; z-index: 1; 
-            overflow: hidden; border: 1px solid #edf2f7; transition: var(--transition);
-        }
-        .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-soft); }
+        .step-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+            transition: var(--transition);
+            -webkit-transition: var(--transition);
+            -moz-transition: var(--transition);
+            -ms-transition: var(--transition);
+            -o-transition: var(--transition);
+}
+        /* .step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-soft); } */
         .step-card::before { 
             content: attr(data-num); position: absolute; top: -15px; right: -10px; 
             font-size: 90px; font-weight: 800; color: var(--light-blue); z-index: -1; line-height: 1; transition: var(--transition); 
@@ -1030,8 +1043,34 @@
     .hero-content {
         align-content: flex-start;
     }
+
+
 }
-        
+ 
+
+@media (max-width: 360px) {
+    .hero-content {
+        align-content: flex-start;
+    }
+
+    .hero-buttons .btn {
+        padding: 12px 18px;
+        font-size: 13px;
+    }
+
+    .hero-buttons a {
+        line-height: 13px;
+    }
+
+    .hero-buttons .btn-order {
+        padding: 20px;
+    }
+
+    .promo-banner {
+        display: none;
+    }
+    
+}
         
 
 
