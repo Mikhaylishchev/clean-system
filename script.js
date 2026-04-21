@@ -965,7 +965,7 @@ function updateTabVisuals(mode) {
     if (tabLight) tabLight.classList.toggle('active', !isFull);
     if (tabFull) tabFull.classList.toggle('active', isFull);
     
-    if (formTitle) formTitle.innerText = isFull ? 'Оформить заявку' : 'Расчитать стоимость';
+    if (formTitle) formTitle.innerHTML = isFull ? 'Оформить заявку' : 'Расчитать стоимость';
     if (submitBtn) submitBtn.textContent = isFull ? 'Отправить' : 'Рассчитать стоимость';
 }
 
