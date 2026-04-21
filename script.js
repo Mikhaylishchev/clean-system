@@ -305,7 +305,7 @@ function renderPreviews() {
 
     if (selectedFiles.length > 0) {
         // Обновляем текст на кнопке
-        fileLabel.innerHTML = `<span class="file-icon" style="color:var(--primary)">✅</span><span style="color:var(--primary); font-weight:700;">Фото добавлены: ${selectedFiles.length} из ${MAX_FILES}</span>`;
+        fileLabel.innerHTML = `<span class="file-icon" style="color:var(--primary)">✅</span><span style="color:var(--primary); font-weight:700;">Фото добавлены: ${selectedFiles.length}</span>`;
         fileLabel.style.borderColor = 'var(--primary)';
 
         // Рисуем каждую фотографию
@@ -470,7 +470,7 @@ function renderPreviews() {
         return;
     }
 
-    if (mTitle) mTitle.textContent = title;
+    if (mTitle) mTitle.innerHTML = title;
     if (mText) mText.innerHTML = text;
     if (mExtra) mExtra.innerHTML = extraHtml;
 
@@ -841,6 +841,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         function showPrivacy() {
+
+
     const briefText = `
         <div style="text-align: left; font-size: 14px; line-height: 1.6;">
             <p><b>Если коротко:</b></p>
@@ -858,9 +860,13 @@ document.addEventListener('DOMContentLoaded', () => {
             </a>
         </div>
     `;
-    
-    // Вызываем твою стандартную модалку
+
+
+
+    // Вызываем стандартную модалку
     showModal("Конфиденциальность", briefText, "info");
+    
+    document.getElementById('modal-icon').innerHTML = '✅';
 }
 
 
