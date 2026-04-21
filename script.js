@@ -701,7 +701,7 @@ function renderPreviews() {
         // 9. ПОКАЗ МОДАЛКИ
         showModal(
             "Спасибо!<br>Заявка отправлена!", 
-            isActuallyFull ? "Мастер свяжется с вами для подтверждения заказа." : "Мастер рассчитает стоимость, и она появится здесь.", 
+            isActuallyFull ? "Мастер свяжется с вами для подтверждения заказа." : "Мастер рассчитает стоимость.<br>Стоимость работы появится здесь.", 
             "success", 
             "", 
             finalOrder || "в обработке"
@@ -1183,7 +1183,7 @@ function renderPlaceholder(orderNum, statusText, price = "") {
                     <button class="btn" onclick="switchForm('FULL')" style="width: 100%; background: #04e061; color: white;">Составить полную заявку</button>
                 ` : ''}
                 
-                <button class="btn btn-outline" onclick="cancelOrder('${finalNum}')" style="width: 100%; border: 1px solid #ddd; color: #888; background: transparent;background: #eee;">
+                <button class="btn btn-outline" onclick="cancelOrder('${finalNum}')" style="width: 100%; border: 1px solid #ddd; color: #888; background: transparent;background: #eee; padding: 17px;">
                     ${fullSubmitted ? 'Отменить или перенести' : 'Отменить заявку'}
                 </button>
             </div>
