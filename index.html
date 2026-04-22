@@ -64,9 +64,19 @@
 
     <header class="header">
     <div class="header-container">
-        <div class="logo">
-            <!-- <span class="logo-icon">✨</span> -->
-            <!-- <span class="logo-text"><span>Логотип</span></span> -->
+        <div class="contacts">
+            <span class="contacts-phone">
+                <a href="tel:89876543210" class="header-top-info__tel-link calltracking-ad calltracking-email">
+                    <span class="logo-icon">📱</span>
+                    8 (987) 654-32-10
+                </a>
+            </span>
+            <span class="contacts-email">
+                <a href="mailto:info@info.ru" class="footer__contact-item-link">
+                    <span class="logo-icon">📧</span>
+                        info@info.ru
+                </a>
+            </span>
         </div>
         
         <nav class="nav-menu" id="navMenu">
@@ -76,6 +86,17 @@
             <a href="#reviews-container-wrapper" class="nav-link">Отзывы</a>
             <a href="#faq" class="nav-link">Частые вопросы</a>
             <a href="#order-form" onclick="goToForm('FULL', event)" class="tab-btn active nav-link">Заказать</a>
+            
+            <div class="contacts">
+                
+                <a href="tel:89876543210" class="telephone">
+                    <span class="contacts-icon"></span>8 (987) 654-32-10
+                </a>
+    
+                <a href="mailto:info@info.ru" class="email">
+                    <span class="contacts-icon"></span>info@info.ru
+                </a>
+            </div>
         </nav>
 
         <button class="burger" id="burgerBtn" aria-label="Меню">

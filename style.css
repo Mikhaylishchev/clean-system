@@ -58,7 +58,7 @@
     top: 0; left: 0; width: 100%;
     z-index: 1000;
     transition: var(--transition);
-    padding: 20px 0;
+    /* padding: 20px 0; */
 }
 
 .header.scrolled {
@@ -70,6 +70,12 @@
     
 }
 
+
+
+.header.scrolled .active {
+    padding: 10px 20px;
+}
+
 .header-container {
     display: flex;
     justify-content: space-between;
@@ -77,14 +83,23 @@
     padding: 0 150px;
 }
 
-.logo {
+.contacts {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    /* gap: 8px; */
+    width: 30%;
     font-weight: 800;
-    font-size: 20px;
-    color: var(--primary);
+    font-size: 1.1rem;
+    /* color: var(--primary); */
 }
+
+.contacts a {
+    color: red;
+    color: var(--primary);
+    padding: 10px;
+    font-size: medium;
+}
+
 
 .logo-text span { color: var(--text-dark); }
 
@@ -93,6 +108,12 @@
     align-items: center;
     gap: 30px;
     z-index: 1000;
+    padding-top: 5px;
+    /* padding: 20px 0; */
+    
+    .contacts {
+        display: none;
+    }
 }
 .nav-menu nav-link {
     font-size: small;
@@ -177,6 +198,10 @@
         z-index: 100; /* НИЖЕ, чем меню */
     }
 
+    .header-container > .contacts {
+        display: none;
+    }
+
     .nav-menu {
         position: fixed;
         top: 0; right: -100%;
@@ -188,6 +213,16 @@
         transition: 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
         box-shadow: -10px 0 30px rgba(0,0,0,0.05);
         z-index: 1050;
+        justify-content: space-evenly;
+
+        .contacts {
+            display: block;
+                width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 20px 0;
+        }
     }
 
     .nav-menu.active { 
@@ -290,7 +325,7 @@
             margin: 0 auto;
             text-align: center;
             margin-top: auto; /* На мобилке прижимаем текст вниз */
-            padding-bottom: 60px;
+            padding: 60px 0;
         }
 
         .trust-badge {
@@ -298,6 +333,7 @@
             color: var(--primary); border-radius: 30px;
             font-size: large; font-weight: 700; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             z-index: 1100;
+            position: relative;
         }
         .trust-badge a {
             text-decoration: none;
@@ -361,6 +397,7 @@
             .hero-buttons { flex-direction: row; max-width: 500px; }
             .hero-buttons .btn { width: auto; }
 
+            
         }
 
         /* ================= ДО / ПОСЛЕ ================= */
@@ -734,7 +771,27 @@
         gap: 5px;
     }
 
-    
+    .header-container > .contacts {
+        display: none;
+    }
+
+    .nav-menu {
+        .telephone {
+            display: block;
+        }
+        .email {
+            display: block;
+        }
+    }
+    /* Показываем контакты внутри выезжающего меню */
+    .nav-menu .contacts {
+        display: flex;
+        flex-direction: column; /* Ставим телефон над почтой */
+        gap: 15px;
+        padding: 20px;
+        border-top: 1px solid #eee; /* Отделяем чертой от пунктов меню */
+        margin-top: auto; /* Прижимает контакты к низу меню */
+    }
 }
 
 
@@ -935,6 +992,7 @@
         justify-content: space-around;
         align-items: center;
         align-content: center;
+        padding-bottom: 50px;
     }
 
     .hero-buttons {
@@ -960,6 +1018,7 @@
         margin-right: auto;
         font-size: small;
         margin-left: 20px;
+        margin-bottom: 0;
     }
 
     .hero h1 {
@@ -980,11 +1039,30 @@
     .safe {
         line-height: normal;
     }
+
+    
+    #navMenu {
+        padding: 70px 0 0 30px
+    }
+
+    .hero-content {
+        padding: 0;
+    }
+
+    #navMenu .contacts {
+        font-size: medium;
+        padding: 0;
+        display: flex;  
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px 0;
+    }
 }
 
 @media only screen and (max-width: 390px) {
     .hero-content{
         flex-direction: row;
+        /* justify-content: center; */
     }
 
     .hero h1 {
@@ -1085,6 +1163,18 @@
 
     .promo-banner {
         display: none;
+    }
+
+    #navMenu {
+        padding: 70px 0 0 30px
+    }
+
+    .hero-content {
+        padding: 0;
+    }
+
+    #navMenu .contacts {
+        font-size: small;
     }
     
 }
