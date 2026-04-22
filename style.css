@@ -902,6 +902,10 @@
         height: 10px;
     }
 
+    #phone, #name, #hours, #minutes {
+        padding-left: 5px;
+        padding-right: 0;
+    }
 
     #order-form select {
         -webkit-appearance: none;
