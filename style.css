@@ -363,6 +363,7 @@
             color: var(--white); padding: 14px 24px; border-radius: 12px;
             font-weight: 700; margin-bottom: 30px; display: inline-block;
             box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); animation: pulse 2s infinite;
+            cursor: default;
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         
@@ -403,7 +404,6 @@
             .hero-buttons { flex-direction: row; max-width: 500px; }
             .hero-buttons .btn { width: auto; }
 
-            
         }
 
         /* ================= ДО / ПОСЛЕ ================= */
@@ -1038,6 +1038,7 @@
     .hero p {
         color: var(--bg-surface);
     }
+
 
     .trust-badge {
         width: 75%;

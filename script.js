@@ -3,7 +3,9 @@ const GOOGLE_TOKEN = '4f9c8e7a2b6d1f3c9a0e5d7b8c1f2a6e3d9b7c0f1a2e4d6c8b5f3a7e9c
 // Генерируем или достаем ID сессии (живет, пока не очистят кэш)
 let currentSessionId = localStorage.getItem('service_session_id');
 if (!currentSessionId) {
-    currentSessionId = 'ID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    // Генерируем по-настоящему надежный ID
+    // Результат будет выглядеть так: "550e8400-e29b-41d4-a716-446655440000"
+    currentSessionId = crypto.randomUUID(); 
     localStorage.setItem('service_session_id', currentSessionId);
 }
 
