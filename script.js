@@ -1335,7 +1335,7 @@ navLinks.forEach(link => {
 
 
 
-//Кастомизация select
+//Кастомизация select тип мебели
 document.addEventListener('DOMContentLoaded', () => {
   const wrapper = document.getElementById('extra-fields-type-of-furniture');
   if (!wrapper) return;
@@ -1417,4 +1417,88 @@ document.addEventListener('DOMContentLoaded', () => {
       container.classList.remove('open');
     }
   });
+});
+
+
+
+
+
+
+// Функция для инициализации кастомного селекта
+function initCustomTimeSelect(wrapperId, selectId) {
+    const wrapper = document.getElementById(wrapperId);
+    const realSelect = document.getElementById(selectId);
+    const trigger = wrapper.querySelector('.custom-select-trigger');
+    const triggerText = trigger.querySelector('span');
+    const optionsContainer = wrapper.querySelector('.custom-options');
+
+    // Функция перерисовки кастомных опций на основе реального селекта
+    function syncOptions() {
+        optionsContainer.innerHTML = '';
+        Array.from(realSelect.options).forEach(option => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'custom-option';
+            optDiv.textContent = option.textContent;
+            optDiv.dataset.value = option.value;
+
+            // Если опция заблокирована в реальном селекте (например, час занят)
+            if (option.disabled) {
+                optDiv.classList.add('disabled');
+            }
+
+            // Обработка клика по элементу кастомного списка
+            optDiv.addEventListener('click', (e) => {
+                if (optDiv.classList.add('disabled')) return; // Игнорируем клик по занятым слотам
+                
+                realSelect.value = option.value; // Меняем значение в настоящем селекте
+                triggerText.textContent = option.textContent; // Обновляем текст на кнопке
+                wrapper.classList.remove('open'); // Закрываем дропдаун
+                
+                // Важно: генерируем событие 'change', чтобы срабатывали другие скрипты сайта
+                realSelect.dispatchEvent(new Event('change')); 
+            });
+
+            optionsContainer.appendChild(optDiv);
+        });
+        
+        // Обновляем текст на триггере в соответствии с выбранным значением
+        const selectedOption = realSelect.options[realSelect.selectedIndex];
+        triggerText.textContent = selectedOption ? selectedOption.textContent : '';
+    }
+
+    // Открытие/закрытие списка при клике на триггер
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Закрываем все остальные кастомные списки перед открытием текущего
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+            if (w !== wrapper) w.classList.remove('open');
+        });
+        wrapper.classList.toggle('open');
+    });
+
+    // Наблюдаем за изменениями оригинального селекта (когда функция updateAvailableHours меняет его)
+    const observer = new MutationObserver(() => {
+        syncOptions();
+    });
+    observer.observe(realSelect, { childList: true });
+
+    // Также синхронизируем данные при обычном программном вызове change
+    realSelect.addEventListener('change', () => {
+        const selectedOption = realSelect.options[realSelect.selectedIndex];
+        triggerText.textContent = selectedOption ? selectedOption.textContent : '';
+    });
+
+    // Первая инициализация при загрузке
+    syncOptions();
+}
+
+// Запускаем кастомизацию после полной загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+    initCustomTimeSelect('custom-hours-wrapper', 'hours');
+    initCustomTimeSelect('custom-minutes-wrapper', 'minutes');
+
+    // Закрываем выпадающие списки, если кликнули в любое другое место экрана
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+    });
 });

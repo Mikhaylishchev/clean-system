@@ -395,18 +395,31 @@
     </div>
 
     <div id="extra-fields-date" class="form-grid" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div class="input-group">
-            <label>Желаемая дата</label>
-            <input type="date" id="order-date" name="date">
-            <div class="preview-container"></div>
-        </div>
-        
-        <div class="input-group">
-            <label for="hours">Время</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <select id="hours" name="hour" style="flex: 1;"><option value="">Час</option></select>
-                <span style="font-weight:bold; color:var(--text-light);">:</span>
-                <select id="minutes" name="minute" style="flex: 1;">
+    <div class="input-group">
+        <label>Желаемая дата</label>
+        <input type="date" id="order-date" name="date">
+        <div class="preview-container"></div>
+    </div>
+    
+    <div class="input-group">
+        <label for="hours">Время *</label>
+        <div class="time-picker-row">
+            
+            <!-- Кастомный селект для часов -->
+            <div class="custom-select-wrapper" id="custom-hours-wrapper">
+                <!-- Оригинальный селект скрыт визуально, но активен -->
+                <select id="hours" name="hour" class="visually-hidden" required>
+                    <option value="">Час</option>
+                </select>
+                <div class="custom-select-trigger"><span>Час</span></div>
+                <div class="custom-options"></div>
+            </div>
+
+            <span class="time-separator">:</span>
+
+            <!-- Кастомный селект для минут -->
+            <div class="custom-select-wrapper" id="custom-minutes-wrapper">
+                <select id="minutes" name="minute" class="visually-hidden" required>
                     <option value="">Мин</option>
                     <option value="00">00</option>
                     <option value="10">10</option>
@@ -415,9 +428,13 @@
                     <option value="40">40</option>
                     <option value="50">50</option>
                 </select>
+                <div class="custom-select-trigger"><span>Мин</span></div>
+                <div class="custom-options"></div>
             </div>
+
         </div>
     </div>
+</div>
 
     <div class="input-group full-width">
         <label>Прикрепите фото мебели для оценки стоимости работы</label>
