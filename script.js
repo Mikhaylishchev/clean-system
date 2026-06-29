@@ -1331,3 +1331,90 @@ navLinks.forEach(link => {
         if (navMenu.classList.contains('active')) toggleMenu();
     });
 });
+
+
+
+
+//Кастомизация select
+document.addEventListener('DOMContentLoaded', () => {
+  const wrapper = document.getElementById('extra-fields-type-of-furniture');
+  if (!wrapper) return;
+
+  const select = wrapper.querySelector('select');
+  const options = select.querySelectorAll('option');
+
+  // 1. Создаем контейнер
+  const container = document.createElement('div');
+  container.classList.add('custom-select-container');
+
+  // 2. Создаем триггер (кнопку)
+  const trigger = document.createElement('div');
+  trigger.classList.add('custom-select-trigger');
+  
+  // Определяем стартовый текст (выбранный по умолчанию или первый элемент)
+  const activeOption = select.options[select.selectedIndex];
+  trigger.textContent = activeOption ? activeOption.textContent : 'Выберите...';
+  
+  // Если выбрана пустая заглушка, добавляем класс плейсхолдера (для серого цвета)
+  if (activeOption && activeOption.value === "") {
+    trigger.classList.add('placeholder');
+  }
+  
+  container.appendChild(trigger);
+
+  // 3. Создаем выпадающий список
+  const optionsList = document.createElement('div');
+  optionsList.classList.add('custom-options-list');
+
+  // 4. Наполняем список только доступными элементами (пропускаем disabled)
+  options.forEach((option) => {
+    if (option.disabled) return; // Пропускаем заглушку «Выберите тип мебели...»
+
+    const customOption = document.createElement('div');
+    customOption.classList.add('custom-option');
+    customOption.textContent = option.textContent;
+    customOption.dataset.value = option.value;
+
+    if (option.selected) {
+      customOption.classList.add('selected');
+    }
+
+    // Обработка клика по пункту меню
+    customOption.addEventListener('click', (e) => {
+      e.stopPropagation();
+      
+      // Сбрасываем старый выбор в UI
+      optionsList.querySelector('.custom-option.selected')?.classList.remove('selected');
+      customOption.classList.add('selected');
+      
+      // Убираем стиль плейсхолдера с кнопки, так как значение выбрано
+      trigger.classList.remove('placeholder');
+      
+      // Обновляем текст кнопки и значение оригинального селекта
+      trigger.textContent = option.textContent;
+      select.value = option.value;
+      
+      // Триггерим событие изменения для корректной работы валидации формы
+      select.dispatchEvent(new Event('change'));
+
+      container.classList.remove('open');
+    });
+
+    optionsList.appendChild(customOption);
+  });
+
+  container.appendChild(optionsList);
+  wrapper.appendChild(container);
+
+  // Открытие / закрытие списка при клике на триггер
+  trigger.addEventListener('click', () => {
+    container.classList.toggle('open');
+  });
+
+  // Закрытие при клике в любое другое место экрана
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      container.classList.remove('open');
+    }
+  });
+});
