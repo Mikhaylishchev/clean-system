@@ -1502,3 +1502,26 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
     });
 });
+
+
+
+// Находим это место в функции initCustomTimeSelect:
+optDiv.addEventListener('click', (e) => {
+    if (optDiv.classList.contains('disabled')) return;
+    
+    realSelect.value = option.value;
+    triggerText.textContent = option.textContent;
+    wrapper.classList.remove('open');
+    
+    // --- ДОБАВЛЯЕМ СЮДА ЛОГИКУ ЦВЕТА ---
+    if (option.value !== "") {
+        wrapper.classList.remove('invalid-choice');
+        wrapper.classList.add('valid-choice');
+    } else {
+        wrapper.classList.remove('valid-choice');
+        wrapper.classList.add('invalid-choice');
+    }
+    // ----------------------------------
+
+    realSelect.dispatchEvent(new Event('change')); 
+});

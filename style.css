@@ -1224,6 +1224,18 @@
         .date-suggest-btn { background: var(--bg-body); border: none; color: var(--primary); padding: 12px 20px; border-radius: 12px; margin: 5px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; display: inline-block;}
         .date-suggest-btn:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
+
+        /* Классы ручной валидации для поля DaData */
+.form-grid input.address-valid {
+    border-color: #22c55e !important;
+    background-color: #f0fdf4 !important;
+}
+
+.form-grid input.address-invalid {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
         /* ПОДВАЛ */
         footer { background: var(--bg-surface); padding: 60px 0; text-align: center; }
         .footer-info p { margin-bottom: 12px; color: var(--text-light); font-size: 15px; }
@@ -1636,4 +1648,47 @@ select option {
 .custom-select-wrapper.open .custom-select-trigger {
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* --- Стили для обычных полей ввода (input) --- */
+
+/* Если пользователь ввел данные некорректно и убрал фокус */
+.form-grid input:user-invalid {
+    border-color: #ef4444 !important; /* Твоя переменная --accent (красный) */
+    background-color: #fef2f2; /* Легкий красный фон */
+}
+
+/* Если данные введены верно */
+.form-grid input:user-valid {
+    border-color: #22c55e !important; /* Зеленый цвет */
+    background-color: #f0fdf4; /* Легкий зеленый фон */
+}
+
+/* --- Стили для наших кастомных селектов (мебель, часы, минуты) --- */
+
+/* Класс для ошибки на кастомном селекте */
+.custom-select-wrapper.invalid-choice .custom-select-trigger {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2;
+}
+
+/* Класс для успешного выбора на кастомном селекте */
+.custom-select-wrapper.valid-choice .custom-select-trigger {
+    border-color: #22c55e !important;
+    background-color: #f0fdf4;
 }
